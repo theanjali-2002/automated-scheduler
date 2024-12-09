@@ -4,11 +4,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+const userRoutes = require('./routes/userRoutes'); // Adjust the path based on your structure
+
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// Use the user routes
+app.use('/api/users', userRoutes);
 
 // Test Route
 app.get('/', (req, res) => {
