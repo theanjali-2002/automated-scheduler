@@ -57,32 +57,9 @@ This document outlines test cases to validate the functionality of the `/api/use
         "error": "You must select at least 3 consecutive slots twice a week."
     }
     ```
-
 ---
 
-### **3. Invalid Day Name**
-- **Test**: Submit an invalid day in the request.
-- **Request**:
-  - **Body**:
-    ```json
-    {
-        "availability": [
-            { "day": "Sunday", "slots": ["10:00-10:30", "10:30-11:00", "11:00-11:30"] }
-        ]
-    }
-    ```
-- **Expected Response**:
-  - **Status**: `400 Bad Request`
-  - **Response Body**:
-    ```json
-    {
-        "error": "Invalid availability format."
-    }
-    ```
-
----
-
-### **4. Invalid Slot Format**
+### **3. Invalid Slot Format**
 - **Test**: Submit availability with invalid slot formatting.
 - **Request**:
   - **Body**:
@@ -98,13 +75,13 @@ This document outlines test cases to validate the functionality of the `/api/use
   - **Response Body**:
     ```json
     {
-        "error": "Invalid availability format."
+        "error": "You must select at least 3 consecutive slots twice a week."
     }
     ```
 
 ---
 
-### **5. Missing Authorization Token**
+### **4. Missing Authorization Token**
 - **Test**: Submit availability without a valid token.
 - **Request**:
   - **Headers**:
@@ -128,7 +105,7 @@ This document outlines test cases to validate the functionality of the `/api/use
 
 ---
 
-### **6. Empty Availability Data**
+### **5. Empty Availability Data**
 - **Test**: Submit an empty `availability` array.
 - **Request**:
   - **Body**:

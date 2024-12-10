@@ -33,12 +33,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    console.log('Closing database connection...');
-    await mongoose.connection.close(); // Close the MongoDB connection
-    console.log('Database connection closed.');
-    console.log('Closing server...');
-    server.close(); // Close the Express server
-    console.log('Server closed.');
+    await User.deleteMany({});
+    await mongoose.connection.close();
+    server.close();
 });
 
 
