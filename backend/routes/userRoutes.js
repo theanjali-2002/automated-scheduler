@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router(); // Initialize the router
-const bcrypt = require('bcrypt'); // Include this if used
-const User = require('../models/User'); // Adjust the path based on your structure
-const { adminOnly } = require('../middleware/auth');
+const bcrypt = require('bcrypt'); 
+const User = require('../models/User'); 
+const { auth, adminOnly } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 
 router.post('/signup', async (req, res) => {
@@ -76,6 +76,52 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+
+// API allowing users for submitting or updating their availability
+router.post('/availability', auth, async (req, res) => {
+    try {
+        const { availability } = req.body;
+
+        // Validate availability format
+        if (!availability || !Array.isArray(availability) || availability.length === 0) {
+            return res.status(400).json({ error: 'Availability data is required and must be an array.' });
+        }
+
+        const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const isValid = availability.every(item =>
+            validDays.includes(item.day) && 
+            Array.isArray(item.slots) &&
+            item.slots.every(slot => typeof slot === 'string')
+        );
+
+        if (!isValid) {
+            return res.status(400).json({ error: 'Invalid availability format.' });
+        }
+
+        // Enforce rule: at least 3 consecutive slots twice a week
+        const isValidSubmission = availability.filter(day => day.slots.length >= 3).length >= 2;
+
+        if (!isValidSubmission) {
+            return res.status(400).json({
+                error: 'You must select at least 3 consecutive slots twice a week.'
+            });
+        }
+
+        // Save or update user's availability
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { availability },
+            { new: true }
+        );
+
+        res.status(200).json({ message: 'Availability updated successfully', availability: user.availability });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 // Export the router to be used in server.js
 module.exports = router;

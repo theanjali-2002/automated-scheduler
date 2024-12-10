@@ -2,6 +2,14 @@
 # API Testing Guide
 
 This document outlines how to manually test the API endpoints using Postman.
+For this API testing guide, here is the summary of endpoints being tested:
+
+1. **User Sign-Up Endpoint**: `POST /api/users/signup`  
+2. **User Login Endpoint**: `POST /api/users/login`  
+3. **Incorrect Credentials Test**: `POST /api/users/login`  
+4. **Admin-Only Data Access**: `GET /api/users/admin/data`  
+5. **MongoDB Verification**: Manual check in the `users` collection.
+
 
 ---
 
