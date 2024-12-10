@@ -1,0 +1,16 @@
+{
+  "name": "automated-scheduler",
+  "version": "1.0.0",
+  "description": "SSSC mentor shift scheduler",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm --prefix ./backend test"
+  },
+  "keywords": [],
+  "author": "Anjali Patel",
+  "license": "ISC"
+}

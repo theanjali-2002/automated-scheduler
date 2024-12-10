@@ -33,10 +33,11 @@ router.post('/signup', async (req, res) => {
 
 router.get('/admin/data', adminOnly, async (req, res) => {
     try {
-        const users = await User.find({}, 'firstName lastName email role'); // Fetch users
-        res.json(users);
+        const users = await User.find({}, 'firstName lastName email role');
+        res.status(200).json(users); // Ensure response is sent only once
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error(err); // Log the error for debugging
+        res.status(500).json({ error: 'Failed to fetch admin data' });
     }
 });
 
