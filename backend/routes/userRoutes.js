@@ -123,5 +123,50 @@ router.post('/availability', auth, async (req, res) => {
 });
 
 
+// This API will allow users to submit their additional details required for algorithm matching
+router.post('/details', auth, async (req, res) => {
+    const { userRole, major, availability, notes } = req.body;
+
+    // Validation: Ensure all required fields are provided
+    if (!major || !availability || (req.user.role === 'user' && !userRole)) {
+        return res.status(400).json({ error: 'Major, user role (for users), and availability are required.' });
+    }
+
+    // Validate availability structure
+    if (!Array.isArray(availability) || availability.length === 0) {
+        return res.status(400).json({ error: 'Availability must be an array with at least one day and slots.' });
+    }
+
+    for (const entry of availability) {
+        if (!entry.day || !Array.isArray(entry.slots) || entry.slots.length === 0) {
+            return res.status(400).json({ error: 'Each day must include a valid day and at least one time slot.' });
+        }
+    }
+
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Update user details
+        user.major = major;
+        user.availability = availability;
+        user.notes = notes || '';
+        if (req.user.role === 'user') {
+            user.userRole = userRole;
+        }
+
+        await user.save();
+
+        res.status(200).json({ message: 'Details submitted successfully.', user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+
+
 // Export the router to be used in server.js
 module.exports = router;
