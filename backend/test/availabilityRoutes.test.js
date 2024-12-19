@@ -9,7 +9,7 @@
  * Test Instructions:
  * 1. Ensure the MongoDB server is running locally or accessible via the configured URI.
  * 2. Run the tests using the following command from the root directory:
- *    npm test
+ *    npm test -- --detectOpenHandles backend/test/availabilityRoutes.test.js
  * 3. The database is automatically seeded with test data and cleared after the tests.
  * 4. Ensure the following environment variables are correctly set in a `.env` file:
  *    - MONGO_URI: The MongoDB connection URI.
