@@ -137,10 +137,32 @@ router.post('/details', auth, async (req, res) => {
         return res.status(400).json({ error: 'Availability must be an array with at least one day and slots.' });
     }
 
+    let totalSlots = 0;
+    let validDays = 0;
+
     for (const entry of availability) {
-        if (!entry.day || !Array.isArray(entry.slots) || entry.slots.length === 0) {
+        const { day, slots } = entry;
+
+        if (!day || !Array.isArray(slots) || slots.length === 0) {
             return res.status(400).json({ error: 'Each day must include a valid day and at least one time slot.' });
         }
+
+        // Ensure at least 3 consecutive slots
+        if (slots.length < 3 || !areConsecutiveSlots(slots)) {
+            return res.status(400).json({
+                error: `You must select at least 3 consecutive time slots.`,
+            });
+        }
+
+        totalSlots += slots.length;
+        validDays++;
+    }
+
+    // Ensure at least 2 days OR 6 slots in one day
+    if (!(validDays >= 2 || totalSlots >= 6)) {
+        return res.status(400).json({
+            error: 'You must select availability for at least 2 days with 3 consecutive slots OR at least 6 time slots on one day.',
+        });
     }
 
     try {
@@ -165,6 +187,28 @@ router.post('/details', auth, async (req, res) => {
         res.status(500).json({ error: 'Server error.' });
     }
 });
+
+// Helper function to check if slots are consecutive
+function areConsecutiveSlots(slots) {
+    const timeToMinutes = (time) => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return hours * 60 + minutes;
+    };
+
+    const slotMinutes = slots.map((slot) => {
+        const [start, end] = slot.split('-');
+        return timeToMinutes(start);
+    });
+
+    for (let i = 1; i < slotMinutes.length; i++) {
+        if (slotMinutes[i] - slotMinutes[i - 1] !== 30) {
+            return false; // Not consecutive
+        }
+    }
+
+    return true; // All slots are consecutive
+}
+
 
 
 

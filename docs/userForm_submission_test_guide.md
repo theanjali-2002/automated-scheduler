@@ -1,13 +1,13 @@
-# API Testing Guide: User Details Submission
+# API Testing Guide: User Details Submission with Availability Validation
 
-This guide provides step-by-step instructions for testing the `/details` endpoint using Postman.
+This guide provides step-by-step instructions for testing the updated `/details` endpoint using Postman, ensuring proper validation for availability, time slots, and user details.
 
 ---
 
 ## **Endpoint Overview**
 
 - **Endpoint**: `POST /api/users/details`
-- **Purpose**: Allows authenticated users to submit their additional details required for scheduling.
+- **Purpose**: Allows authenticated users to submit their additional details required for scheduling with validations for availability.
 - **Authorization**: Requires a valid JWT token in the `Authorization` header.
 - **Content-Type**: `application/json`
 
@@ -24,7 +24,7 @@ This guide provides step-by-step instructions for testing the `/details` endpoin
 
 ### **1. Submit Valid Details**
 
-- **Description**: Submit all required details in the correct format.
+- **Description**: Submit all required details in the correct format, meeting validation criteria.
 - **Request**:
   - **Method**: POST
   - **URL**: `http://localhost:<port>/api/users/details`
@@ -39,11 +39,11 @@ This guide provides step-by-step instructions for testing the `/details` endpoin
         "availability": [
             {
                 "day": "Monday",
-                "slots": ["10:00-10:30", "10:30-11:00"]
+                "slots": ["10:00-10:30", "10:30-11:00", "11:00-11:30"]
             },
             {
                 "day": "Wednesday",
-                "slots": ["14:00-14:30", "14:30-15:00"]
+                "slots": ["14:00-14:30", "14:30-15:00", "15:00-15:30"]
             }
         ],
         "notes": "Unavailable on Fridays"
@@ -65,11 +65,11 @@ This guide provides step-by-step instructions for testing the `/details` endpoin
             "availability": [
                 {
                     "day": "Monday",
-                    "slots": ["10:00-10:30", "10:30-11:00"]
+                    "slots": ["10:00-10:30", "10:30-11:00", "11:00-11:30"]
                 },
                 {
                     "day": "Wednesday",
-                    "slots": ["14:00-14:30", "14:30-15:00"]
+                    "slots": ["14:00-14:30", "14:30-15:00", "15:00-15:30"]
                 }
             ],
             "notes": "Unavailable on Fridays"
@@ -79,30 +79,9 @@ This guide provides step-by-step instructions for testing the `/details` endpoin
 
 ---
 
-### **2. Submit Without Availability**
+### **2. Submit With Non-Consecutive Slots**
 
-- **Description**: Omit the `availability` field in the request body.
-- **Request Body**:
-    ```json
-    {
-        "userRole": "Peer Mentor",
-        "major": "Computer Science"
-    }
-    ```
-- **Expected Response**:
-  - **Status**: `400 Bad Request`
-  - **Body**:
-    ```json
-    {
-        "error": "Major, user role (for users), and availability are required."
-    }
-    ```
-
----
-
-### **3. Submit With Invalid Day**
-
-- **Description**: Use an invalid day in the `availability` array.
+- **Description**: Submit availability where the slots are not consecutive.
 - **Request Body**:
     ```json
     {
@@ -110,8 +89,8 @@ This guide provides step-by-step instructions for testing the `/details` endpoin
         "major": "Computer Science",
         "availability": [
             {
-                "day": "Sunday",
-                "slots": ["10:00-10:30"]
+                "day": "Monday",
+                "slots": ["10:00-10:30", "11:00-11:30"] // Non-consecutive 
             }
         ]
     }
@@ -121,13 +100,40 @@ This guide provides step-by-step instructions for testing the `/details` endpoin
   - **Body**:
     ```json
     {
-        "error": "Each day must include a valid day and at least one time slot."
+        "error": "You must select at least 3 consecutive time slots."
     }
     ```
 
 ---
 
-### **4. Submit With Missing Token**
+### **3. Submit With Insufficient Days/Slots**
+
+#### **Scenario 1: 1 Day with Less Than 6 Slots**
+- **Request Body**:
+    ```json
+    {
+        "userRole": "Peer Mentor",
+        "major": "Computer Science",
+        "availability": [
+            {
+                "day": "Monday",
+                "slots": ["10:00-10:30", "10:30-11:00", "11:00-11:30"]
+            }
+        ]
+    }
+    ```
+- **Expected Response**:
+  - **Status**: `400 Bad Request`
+  - **Body**:
+    ```json
+    {
+        "error": "You must select availability for at least 2 days OR at least 6 time slots on one day."
+    }
+    ```
+
+---
+
+### **5. Submit With Missing Token**
 
 - **Description**: Submit the request without an authorization token.
 - **Request Headers**:
