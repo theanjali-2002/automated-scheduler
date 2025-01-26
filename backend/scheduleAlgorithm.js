@@ -1,6 +1,7 @@
 const User = require('./models/user');
 const fs = require('fs');
 const path = require('path');
+const ExcelJS = require('exceljs');
 
 // Constants
 const SLOTS_PER_MENTOR = 3;
@@ -147,7 +148,12 @@ async function generateScheduleToCSV() {
     });
 
     // Write to file
-    const fileName = `schedule_${new Date().toISOString().split('T')[0]}.csv`;
+    const date = new Date();
+    const formattedDate = date.toISOString()
+        .replace('T', '_')
+        .replace(/:/g, '-')
+        .split('.')[0];
+    const fileName = `schedule_${formattedDate}.csv`;
     const filePath = path.join(__dirname, 'outputs', fileName);
 
     // Create outputs directory if it doesn't exist
@@ -164,4 +170,139 @@ async function generateScheduleToCSV() {
     };
 }
 
-module.exports = { generateSchedule, generateScheduleToCSV };
+async function generateScheduleToExcel() {
+    const result = await generateSchedule();
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Schedule');
+
+    // Define colors for each major
+    const majorColors = {
+        'Computer Science': 'FFB4C6E7',  // Light blue
+        'Biology': 'FFC6EFCE',           // Light green
+        'Chemistry': 'FFFFC7CE',         // Light red
+        'Physics': 'FFFFF2CC',           // Light yellow
+        'Mathematics and Statistics': 'FFE4C4',      // Bisque
+        'Environmental and Earth Science': 'FF98FB98', // Pale green
+        'Health Science': 'FFFFDAB9',    // Peach
+        'Neuroscience and Mental Health': 'FFD8BFD8', // Thistle
+        'Psychology': 'FFFFE4E1',        // Misty rose
+        'Other': 'FFE6E6E6'             // Light gray
+    };
+
+    // Set up headers
+    worksheet.columns = [
+        { header: 'Time Slot', key: 'timeSlot', width: 15 },
+        ...['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].flatMap(day => [
+            { header: `${day} (Mentors)`, key: `${day.toLowerCase()}_mentors`, width: 30 },
+            { header: `${day} (Majors)`, key: `${day.toLowerCase()}_majors`, width: 30 }
+        ])
+    ];
+
+    // Style headers
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF999999' }
+    };
+
+    // Add data rows
+    const timeSlots = Object.keys(result.schedule['Monday']);
+    timeSlots.forEach((timeSlot, rowIndex) => {
+        const rowData = {
+            timeSlot
+        };
+
+        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].forEach(day => {
+            const mentors = result.schedule[day][timeSlot];
+            rowData[`${day.toLowerCase()}_mentors`] = mentors.map(m => m.name).join('\n');
+            rowData[`${day.toLowerCase()}_majors`] = mentors.map(m => m.major).join('\n');
+        });
+
+        worksheet.addRow(rowData);
+
+        // Apply colors based on majors
+        const currentRow = rowIndex + 2; // +2 because of header row
+        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].forEach((day, dayIndex) => {
+            const mentors = result.schedule[day][timeSlot];
+            const mentorCell = worksheet.getCell(currentRow, dayIndex * 2 + 2);
+            const majorCell = worksheet.getCell(currentRow, dayIndex * 2 + 3);
+
+            // If there are mentors in this slot
+            if (mentors.length > 0) {
+                // Split the cell into sections for each mentor
+                mentors.forEach((mentor, mentorIndex) => {
+                    const color = majorColors[mentor.major];
+                    
+                    // Apply rich text with background color
+                    mentorCell.value = {
+                        richText: mentors.map((m, i) => ({
+                            text: `${m.name}${i < mentors.length - 1 ? '\n' : ''}`,
+                            font: { color: { argb: '000000' } }
+                        }))
+                    };
+                    majorCell.value = {
+                        richText: mentors.map((m, i) => ({
+                            text: `${m.major}${i < mentors.length - 1 ? '\n' : ''}`,
+                            font: { color: { argb: '000000' } }
+                        }))
+                    };
+                });
+
+                // Apply fill to entire cells
+                mentorCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: majorColors[mentors[0].major] }
+                };
+                majorCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: majorColors[mentors[0].major] }
+                };
+            }
+        });
+    });
+
+    // Add legend
+    const legendSheet = workbook.addWorksheet('Legend');
+    legendSheet.columns = [
+        { header: 'Major', key: 'major', width: 30 },
+        { header: 'Color Code', key: 'color', width: 15 }
+    ];
+
+    legendSheet.getRow(1).font = { bold: true };
+
+    Object.entries(majorColors).forEach(([major, color], index) => {
+        const row = legendSheet.addRow({ major });
+        row.getCell(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: color }
+        };
+    });
+
+    // Save the file
+    const date = new Date();
+    const formattedDate = date.toISOString()
+        .replace('T', '_')
+        .replace(/:/g, '-')
+        .split('.')[0];
+    const fileName = `schedule_${formattedDate}.xlsx`;
+    const filePath = path.join(__dirname, 'outputs', fileName);
+
+    // Create outputs directory if it doesn't exist
+    if (!fs.existsSync(path.join(__dirname, 'outputs'))) {
+        fs.mkdirSync(path.join(__dirname, 'outputs'));
+    }
+
+    await workbook.xlsx.writeFile(filePath);
+
+    return {
+        success: true,
+        filePath,
+        issues: result.issues
+    };
+}
+
+module.exports = { generateSchedule, generateScheduleToCSV, generateScheduleToExcel };
