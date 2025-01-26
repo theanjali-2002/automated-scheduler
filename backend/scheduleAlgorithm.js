@@ -175,18 +175,22 @@ async function generateScheduleToExcel() {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Schedule');
 
-    // Function to generate a random color
-    const getRandomColor = () => {
-        const letters = '0123456789ABCDEF';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color.replace('#', 'FF'); // Convert to ARGB format
+    // Function to generate a random light color
+    const getRandomLightColor = (usedColors) => {
+        let color;
+        do {
+            const r = Math.floor(Math.random() * 128 + 128); // Light red
+            const g = Math.floor(Math.random() * 128 + 128); // Light green
+            const b = Math.floor(Math.random() * 128 + 128); // Light blue
+            color = `FF${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`; // Light color
+        } while (usedColors.includes(color)); // Ensure uniqueness
+        usedColors.push(color); // Add to used colors
+        return color;
     };
 
     // Store colors for each major
     const majorColors = {};
+    const usedColors = []; // Track used colors
 
     // Set up headers
     worksheet.columns = [
@@ -207,9 +211,7 @@ async function generateScheduleToExcel() {
     // Add data rows
     const timeSlots = Object.keys(result.schedule['Monday']);
     timeSlots.forEach((timeSlot) => {
-        const rowData = {
-            timeSlot
-        };
+        const rowData = { timeSlot };
 
         ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].forEach(day => {
             const mentors = result.schedule[day][timeSlot];
@@ -217,7 +219,7 @@ async function generateScheduleToExcel() {
                 mentors.forEach((mentor) => {
                     // Assign a color for the major if it doesn't exist
                     if (!majorColors[mentor.major]) {
-                        majorColors[mentor.major] = getRandomColor();
+                        majorColors[mentor.major] = getRandomLightColor(usedColors);
                     }
 
                     // Add a new row for each mentor
@@ -233,8 +235,6 @@ async function generateScheduleToExcel() {
                         fgColor: { argb: majorColors[mentor.major] }
                     };
                 });
-            } else {
-                rowData[`${day.toLowerCase()}_mentors`] = '';
             }
         });
     });
