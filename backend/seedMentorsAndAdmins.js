@@ -68,11 +68,32 @@ async function seedMentorsAndAdmins() {
         console.log('Existing users cleared');
 
         const mentors = [];
+        const majorCounts = {
+            'Computer Science': 0,
+            'Neuroscience and Mental Health': 0,
+            'Health Science': 0,
+            'Other': 0
+        };
 
         for (let i = 0; i < 50; i++) {
-            const userRole = i < 10 ? 'Team Lead & Peer Mentor' : 'Peer Mentor'; // Ensure only 10 team leads
+            let major;
 
-            const major = majorOptions[Math.floor(Math.random() * majorOptions.length)];
+            if (majorCounts['Computer Science'] < 13) { // 25% of 50
+                major = 'Computer Science';
+            } else if (majorCounts['Neuroscience and Mental Health'] < 10) { // 20% of 50
+                major = 'Neuroscience and Mental Health';
+            } else if (majorCounts['Health Science'] < 5) { // 10% of 50
+                major = 'Health Science';
+            } else if (majorCounts['Other'] < 1) { // 2% of 50
+                major = 'Other';
+            } else {
+                const remainingMajors = majorOptions.filter(m => !Object.keys(majorCounts).includes(m));
+                major = remainingMajors[Math.floor(Math.random() * remainingMajors.length)];
+            }
+
+            majorCounts[major]++;
+
+            const userRole = i < 10 ? 'Team Lead & Peer Mentor' : 'Peer Mentor'; // Ensure only 10 team leads
 
             const availability = [];
             const daysCount = Math.random() < 0.99 ? 2 : 1; // 99% chance for 2 days
