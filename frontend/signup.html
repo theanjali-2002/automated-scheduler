@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Auth Section -->
+        <section id="auth-section" class="section">
+            <div class="auth-container">
+                <form id="signup-form" class="auth-form">
+                    <h2>Sign Up</h2>
+                    <!-- <label>First Name</label>
+                    <input type="text" placeholder="First Name" required>
+                    <label>Last Name</label>
+                    <input type="text" placeholder="Last Name" required> -->
+
+                    <div class="name-container">
+                        <div class="name-field">
+                            <label for="first-name">First Name</label>
+                            <input type="text" id="first-name" placeholder="First Name" required>
+                        </div>
+                        <div class="name-field">
+                            <label for="last-name">Last Name</label>
+                            <input type="text" id="last-name" placeholder="Last Name" required>
+                        </div>
+                    </div>
+
+                    <label>Email</label>
+                    <input type="email" placeholder="Email" required>
+                    <label>Password</label>
+                    <input type="password" placeholder="Password" required>
+                    <label>Retype Password</label>
+                    <input type="password" placeholder="Retype Password" required>
+                    <button type="submit" class="primary-btn">Sign Up</button>
+                    <p class="signup-text">Already have an account? <button type="button" id="goto-login" class="link-btn" style="margin-top: 10px;">Login here</button></p>
+                </form>
+            </div>
+        </section>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html> 
