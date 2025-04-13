@@ -5,121 +5,111 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-}
-
-.container {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 0 20px;
-}
-
-.section {
-    background: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f6f7fb, #e9eff5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.hidden {
-    display: none;
+.auth-wrapper {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-/* Updated Auth Styles */
-.auth-container {
-    max-width: 400px;
-    margin: 0 auto;
+.auth-card {
+    background-color: #fff;
+    padding: 2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    transition: all 0.3s ease;
 }
 
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1rem;
 }
 
 .auth-form h2 {
+    color: #1a1a1a;
     text-align: center;
-    color: #333;
+    margin-bottom: 0.2rem;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #666;
+    text-align: center;
     margin-bottom: 1rem;
 }
 
-.primary-btn {
+label {
+    font-size: 0.9rem;
+    color: #333;
+    font-weight: 500;
+}
+
+input {
     padding: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    outline: none;
+    border-color: #ca0000;
+}
+
+.primary-btn {
     background-color: #ca0000;
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 0.9rem;
     font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
 }
 
 .primary-btn:hover {
-    background-color: #8f0000;
+    background-color: #a80000;
 }
 
-.signup-text {
+.switch-text {
     text-align: center;
-    margin-top: 1rem;
+    font-size: 0.9rem;
     color: #666;
+    margin-top: 1rem;
 }
 
 .link-btn {
     background: none;
     border: none;
-    color: #007bff;
-    padding: 0;
-    font: inherit;
+    color: #ca0000;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: underline;
 }
 
 .link-btn:hover {
-    color: #0056b3;
-    background: none;
-}
-
-label{
-    display: block;
-    margin-top: 10px;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-input{
-    display: block;
-    height: 40px;
-    width: 100%;
-    background-color: rgba(255,255,255,0.07);
-    border-radius: 3px;
-    padding: 0 10px;
-    margin-top: 2px;
-    font-size: 14px;
-    font-weight: 300;
-}
-
-button{
-    margin-top: 30px;
-    width: 100%;
-    background-color: #ffffff;
-    color: #080710;
-    padding: 15px 0;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 5px;
-    cursor: pointer;
+    color: #a80000;
 }
 
 .name-container {
-    display: flex; /* Use flexbox to align items */
-    gap: 1rem; /* Space between the input fields */
+    display: flex;
+    gap: 1rem;
 }
 
 .name-field {
-    flex: 1; /* Allow inputs to grow and fill the available space */
-}
-
-.name-field label {
-    display: block; /* Make label a block element to stack above the input */
-    margin-bottom: 0.5rem; /* Space between label and input */
+    flex: 1;
 }
