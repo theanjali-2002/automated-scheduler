@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Redirect based on user role
                 if (data.user.role === 'admin') {
-                    window.location.href = '/admin-dashboard.html';
+                    window.location.href = 'admin_board.html';
                 } else {
-                    window.location.href = '/user-dashboard.html';
+                    window.location.href = 'user_board.html';
                 }
 
             } catch (error) {

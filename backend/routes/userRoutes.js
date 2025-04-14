@@ -146,46 +146,13 @@ router.post('/availability', auth, async (req, res) => {
 });
 
 
-// This API will allow users to submit their additional details required for algorithm matching
+// This API will allow users to submit their additional details
 router.post('/details', auth, async (req, res) => {
-    const { userRole, major, availability, notes } = req.body;
+    const { userRole, major, coopStatus, notes } = req.body;
 
-    // Validation: Ensure all required fields are provided
-    if (!major || !availability || (req.user.role === 'user' && !userRole)) {
-        return res.status(400).json({ error: 'Major, user role (for users), and availability are required.' });
-    }
-
-    // Validate availability structure
-    if (!Array.isArray(availability) || availability.length === 0) {
-        return res.status(400).json({ error: 'Availability must be an array with at least one day and slots.' });
-    }
-
-    let totalSlots = 0;
-    let validDays = 0;
-
-    for (const entry of availability) {
-        const { day, slots } = entry;
-
-        if (!day || !Array.isArray(slots) || slots.length === 0) {
-            return res.status(400).json({ error: 'Each day must include a valid day and at least one time slot.' });
-        }
-
-        // Ensure at least 3 consecutive slots
-        if (slots.length < 3 || !areConsecutiveSlots(slots)) {
-            return res.status(400).json({
-                error: `You must select at least 3 consecutive time slots.`,
-            });
-        }
-
-        totalSlots += slots.length;
-        validDays++;
-    }
-
-    // Ensure at least 2 days OR 6 slots in one day
-    if (!(validDays >= 2 || totalSlots >= 6)) {
-        return res.status(400).json({
-            error: 'You must select availability for at least 2 days with 3 consecutive slots OR at least 6 time slots on one day.',
-        });
+    // Validation: Ensure required fields are provided
+    if (!major || (req.user.role === 'user' && !userRole) || !coopStatus) {
+        return res.status(400).json({ error: 'Major, user role (for users), and co-op status are required.' });
     }
 
     try {
@@ -196,15 +163,26 @@ router.post('/details', auth, async (req, res) => {
 
         // Update user details
         user.major = major;
-        user.availability = availability;
         user.notes = notes || '';
+        user.coopStatus = coopStatus;
         if (req.user.role === 'user') {
             user.userRole = userRole;
         }
 
         await user.save();
 
-        res.status(200).json({ message: 'Details submitted successfully.', user });
+        res.status(200).json({ 
+            message: 'Details submitted successfully.',
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                major: user.major,
+                userRole: user.userRole,
+                coopStatus: user.coopStatus,
+                notes: user.notes
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Server error.' });
@@ -232,8 +210,18 @@ function areConsecutiveSlots(slots) {
     return true; // All slots are consecutive
 }
 
-
-
+// Get user profile
+router.get('/profile', auth, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 // Export the router to be used in server.js
 module.exports = router;

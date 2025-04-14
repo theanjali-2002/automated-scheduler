@@ -21,20 +21,16 @@ const userSchema = new mongoose.Schema({
         default: null // Default to null during sign-up
     },
     major: { 
-        type: String, 
-        enum: [
-            'Computer Science', 
-            'Biology', 
-            'Chemistry', 
-            'Physics', 
-            'Mathematics and Statistics', 
-            'Environmental and Earth Science', 
-            'Health Science', 
-            'Neuroscience and Mental Health',
-            'Psychology',
-            'Other'
-        ], // Dropdown options
-        default: null // Default to null during sign-up
+        type: String,
+        required: function() {
+            return this.role === 'user'; // Required only if the general role is 'user'
+        },
+        default: null
+    },
+    coopStatus: {
+        type: String,
+        enum: ['Yes', 'No', 'Maybe'],
+        default: null
     },
     notes: { type: String, maxlength: 500, default: '' }
 });
