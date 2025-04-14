@@ -8,27 +8,50 @@ const jwt = require('jsonwebtoken');
 router.post('/signup', async (req, res) => {
     const { firstName, lastName, email, password, role, adminSecret } = req.body;
 
-    // Only allow admin creation if the correct secret is provided
-    if (role === 'admin' && (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET)) {
-        return res.status(403).json({ error: 'Unauthorized to create admin' });
-    }    
+    let finalRole = 'user'; // Default role
+
+    // Only assign admin role if the correct secret is provided
+    if (role === 'admin') {
+        if (adminSecret && process.env.ADMIN_SECRET && adminSecret === process.env.ADMIN_SECRET) {
+            finalRole = 'admin';
+        } else {
+            return res.status(403).json({ error: 'Unauthorized to create admin.' });
+        }
+    }
 
     try {
-        // Hash the password
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ error: 'User already exists.' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create the new user
-        const newUser = new User({ firstName, lastName, email, password: hashedPassword, role: role || 'user' });
+        const newUser = new User({
+            firstName,
+            lastName,
+            email,
+            password: hashedPassword,
+            role: finalRole
+        });
+
         await newUser.save();
 
         res.status(201).json({
             message: 'User signed up successfully!',
-            user: { firstName, lastName, email, role: newUser.role },
+            user: {
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
+                email: newUser.email,
+                role: newUser.role
+            }
         });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        console.error(err);
+        res.status(500).json({ error: 'Server error.' });
     }
 });
+
 
 
 router.get('/admin/data', adminOnly, async (req, res) => {
