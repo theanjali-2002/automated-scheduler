@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+  <div class="max-w-5xl mx-auto py-10 px-6">
+    <!-- Welcome Section -->
+    <h1 class="text-3xl font-bold mb-6">Hi, <span class="text-red-600" id="userFirstName">John</span>! 👋</h1>
+
+    <!-- Section 1: User Profile -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-8">
+      <h2 class="text-xl font-semibold mb-4">Your Details</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Basic info -->
+        <div>
+          <label class="text-sm font-medium text-gray-700">First Name</label>
+          <input type="text" id="firstName" class="mt-1 w-full border rounded px-3 py-2 bg-gray-100" value="John" disabled />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Last Name</label>
+          <input type="text" id="lastName" class="mt-1 w-full border rounded px-3 py-2 bg-gray-100" value="Doe" disabled />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Email</label>
+          <input type="email" id="email" class="mt-1 w-full border rounded px-3 py-2 bg-gray-100" value="john@example.com" disabled />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Role</label>
+          <input type="text" class="mt-1 w-full border rounded px-3 py-2 bg-gray-100" value="user" disabled />
+        </div>
+
+        <!-- User Role -->
+        <div class="md:col-span-2">
+          <label class="text-sm font-medium text-gray-700">Are you a:</label>
+          <div class="mt-2 flex gap-6">
+            <label class="flex items-center">
+              <input type="radio" name="userRole" value="Peer Mentor" class="mr-2" /> Peer Mentor
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="userRole" value="Team Lead & Peer Mentor" class="mr-2" /> Team Lead & Peer Mentor
+            </label>
+          </div>
+        </div>
+
+        <!-- Major -->
+        <div class="md:col-span-2">
+          <label class="text-sm font-medium text-gray-700">Major</label>
+          <select id="majorDropdown" class="mt-1 w-full border rounded px-3 py-2">
+            <option value="">-- Select Major --</option>
+            <option>Computer Science</option>
+            <option>Biology</option>
+            <option>Chemistry</option>
+            <option>Physics</option>
+            <option>Mathematics and Statistics</option>
+            <option>Environmental and Earth Science</option>
+            <option>Health Science</option>
+            <option>Neuroscience and Mental Health</option>
+            <option>Psychology</option>
+            <option>Other (enter manually below)</option>
+          </select>
+          <input type="text" placeholder="Other major (optional)" class="mt-2 w-full border rounded px-3 py-2" id="customMajor" />
+        </div>
+
+        <!-- Co-op Question -->
+        <div class="md:col-span-2">
+            <label class="text-sm font-medium text-gray-700">Are you in Co-op this term?</label>
+            <div class="flex gap-6">
+            <label class="flex items-center">
+                <input type="radio" name="coopStatus" value="Yes" class="mr-2" onchange="handleCoopChange(this.value)" /> Yes
+            </label>
+            <label class="flex items-center">
+                <input type="radio" name="coopStatus" value="No" class="mr-2" onchange="handleCoopChange(this.value)" /> No
+            </label>
+            <label class="flex items-center">
+                <input type="radio" name="coopStatus" value="Maybe" class="mr-2" onchange="handleCoopChange(this.value)" /> Maybe
+            </label>
+            </div>
+        </div>
+  
+
+        <!-- Notes -->
+        <div class="md:col-span-2">
+          <label class="text-sm font-medium text-gray-700">Notes (optional - visible to admins)</label>
+          <textarea class="mt-1 w-full border rounded px-3 py-2" rows="3" placeholder="Any notes you’d like the admin to see..."></textarea>
+        </div>
+      </div>
+
+      <div class="text-right mt-6">
+        <button class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">Save Details</button>
+      </div>
+    </div>
+
+    <!-- Section 2: Availability Matrix -->
+    <div class="bg-white shadow-md rounded-lg p-6" id="availabilitySection">
+      <h2 class="text-xl font-semibold mb-4">Select Your Weekly Availability</h2>
+      <p id="coopNote" class="text-sm text-gray-500 italic mb-4"></p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-center">
+          <thead>
+            <tr>
+              <th class="border px-2 py-1 bg-gray-200">Time</th>
+              <th class="border px-2 py-1 bg-gray-200">Monday</th>
+              <th class="border px-2 py-1 bg-gray-200">Tuesday</th>
+              <th class="border px-2 py-1 bg-gray-200">Wednesday</th>
+              <th class="border px-2 py-1 bg-gray-200">Thursday</th>
+              <th class="border px-2 py-1 bg-gray-200">Friday</th>
+            </tr>
+          </thead>
+
+          <tbody id="availabilityBody">
+
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-right mt-6">
+        <button id="availabilitySubmit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Submit Availability</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const startHour = 10;
+    const endHour = 16;
+    const container = document.getElementById('availabilityBody');
+  
+    // Generate 30-minute time slots
+    function generateTimeSlots(start, end) {
+      const slots = [];
+      for (let hour = start; hour < end; hour++) {
+        slots.push(`${hour.toString().padStart(2, '0')}:00-${hour.toString().padStart(2, '0')}:30`);
+        slots.push(`${hour.toString().padStart(2, '0')}:30-${(hour + 1).toString().padStart(2, '0')}:00`);
+      }
+      return slots;
+    }
+  
+    const timeSlots = generateTimeSlots(startHour, endHour);
+  
+    timeSlots.forEach(slot => {
+      const row = document.createElement('tr');
+  
+      // Time label
+      const timeCell = document.createElement('td');
+      timeCell.className = 'border px-2 py-1 font-medium text-sm';
+      timeCell.textContent = slot;
+      row.appendChild(timeCell);
+  
+      // Checkboxes for each day
+      days.forEach(day => {
+        const cell = document.createElement('td');
+        cell.className = 'border px-2 py-1';
+  
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.name = `availability-${day}-${slot}`;
+        checkbox.dataset.day = day;
+        checkbox.dataset.slot = slot;
+  
+        cell.appendChild(checkbox);
+        row.appendChild(cell);
+      });
+  
+      container.appendChild(row);
+    });
+
+    function handleCoopChange(value) {
+        const checkboxes = document.querySelectorAll('#availabilityBody input[type="checkbox"]');
+        const formSection = document.getElementById('availabilitySection');
+        const submitBtn = document.getElementById('availabilitySubmit');
+        const headingNote = document.getElementById('coopNote');
+
+        const isCoop = value === 'Yes';
+
+        checkboxes.forEach(cb => cb.disabled = isCoop);
+
+        if (isCoop) {
+            formSection.classList.add('opacity-50', 'pointer-events-none');
+            submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+            headingNote.textContent = 'You will be in co-op this term.';
+        } else {
+            formSection.classList.remove('opacity-50', 'pointer-events-none');
+            submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+            headingNote.textContent = '';
+        }
+    }
+
+  </script>
+  
+</body>
+</html>
