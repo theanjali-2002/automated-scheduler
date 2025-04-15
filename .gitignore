@@ -136,3 +136,7 @@ dist
 Thumbs.db
 *.swp
 *.swo
+
+# Playwright test output folders
+frontend/playwright-report/
+frontend/test-results/

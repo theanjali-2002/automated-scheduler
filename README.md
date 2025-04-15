@@ -53,23 +53,41 @@ This project is built using the following technologies:
 ### **Automated Testing**
 - Unit & integration tests using **Jest & Supertest**
 - Tests cover **user authentication, availability submission, and admin access**
+- Frontend end-to-end tests using **Playwright** covering user flows and UI validation
 
 ## Project Structure
 ```
 automated-scheduler/
-├── frontend/           # Frontend implementation
-│   ├── index.html     # Main entry point
-│   ├── signup.html    # User registration
-│   ├── user_board.html # User dashboard
-│   └── app.js         # Frontend logic
-├── backend/           # Backend implementation
-│   ├── controllers/   # Route controllers
-│   ├── models/        # Database models
-│   ├── routes/        # API routes
-│   ├── middleware/    # Custom middleware
-│   ├── test/         # Test files
-│   └── server.js     # Main server file
-└── docs/             # Documentation
+├── frontend/                 # Frontend implementation
+│   ├── index.html           # Main entry point
+│   ├── signup.html          # User registration
+│   ├── user_board.html      # User dashboard
+│   ├── app.js               # Frontend logic
+│   ├── package.json         # Frontend dependencies
+│   ├── package-lock.json    # Frontend lock file
+│   ├── playwright.config.js # Playwright test config
+│   ├── tests/               # Playwright test files
+│   ├── playwright-report/   # Playwright test reports
+│   └── test-results/        # Test results
+├── backend/                 # Backend implementation
+│   ├── controllers/         # Route controllers
+│   ├── models/              # Database models
+│   ├── routes/              # API routes
+│   ├── middleware/          # Custom middleware
+│   ├── test/                # Backend test files
+│   ├── outputs/             # Generated schedule outputs
+│   ├── deleteUsers.js       # User deletion script
+│   ├── generateScheduleScript.js # Schedule generation script
+│   ├── scheduleAlgorithm.js # Scheduling algorithm implementation
+│   ├── seedMentorsAndAdmins.js # Seeding script for mentors/admins
+│   └── server.js            # Main server file
+├── docs/                    # Documentation
+│   ├── availability_api_testing.md
+│   ├── user_management_api_testing_guide.md
+│   └── userForm_submission_test_guide.md
+├── package.json             # Root dependencies
+├── package-lock.json        # Root lock file
+└── README.md                # Project documentation
 ```
 
 ## API Endpoints
@@ -85,10 +103,54 @@ automated-scheduler/
 All authenticated endpoints require a valid JWT token in the Authorization header.
 
 ## Testing & Validation
-Manual and automated tests are provided:
-- **Manual Testing Guide** (`user_management_api_testing_guide.md` & `availability_api_testing.md`)
-- **Automated Tests** using `Jest & Supertest`
-  - Run tests with `npm test`
+The project includes comprehensive testing at both frontend and backend levels:
+
+### **Backend Testing**
+- **Unit & Integration Tests** using `Jest & Supertest`.
+- Tests cover **user authentication, availability submission, and admin access**.
+- Run backend tests with:
+  ```bash
+  cd backend && npm test
+  ```
+
+### **Frontend Testing**
+- The frontend is tested using [Playwright](https://playwright.dev/) for full end-to-end coverage across all major browsers.
+- Tests cover user interface functionality, including:
+  - User authentication flow.
+  - Availability selection and validation.
+  - Form submissions and error handling.
+  - Cross-browser compatibility (Chrome, Firefox, Safari).
+
+#### 🧪 Running Frontend Tests
+
+1. **Install Playwright dependencies:**  
+   ```bash
+   cd frontend
+   npm install
+   npx playwright install
+   ```
+
+2. **Run Tests:**
+   ```bash
+   # Run all tests in headless mode (default)
+   npm test
+
+   # Run tests with browser UI visible
+   npm run test:headed
+
+   # Run tests in debug mode
+   npm run test:debug
+
+   # Run specific test file
+   npx playwright test tests/userBoard.test.js
+
+   # Run tests in specific browser
+   npx playwright test --project=chromium
+   ```
+
+### **Manual Testing**
+- **Manual Testing Guide** (`user_management_api_testing_guide.md` & `availability_api_testing.md`).
+- Step-by-step instructions for manual testing scenarios.
 
 ## Current Progress
 ✅ User authentication & authorization
@@ -141,6 +203,10 @@ Manual and automated tests are provided:
 7. Run tests:
    ```bash
    cd backend
+   npm test
+   ```
+      ```bash
+   cd frontend
    npm test
    ```
 
