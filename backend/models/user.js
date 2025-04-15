@@ -22,9 +22,6 @@ const userSchema = new mongoose.Schema({
     },
     major: { 
         type: String,
-        required: function() {
-            return this.role === 'user'; // Required only if the general role is 'user'
-        },
         default: null
     },
     coopStatus: {

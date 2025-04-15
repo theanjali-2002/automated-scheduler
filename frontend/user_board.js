@@ -35,11 +35,16 @@ document.addEventListener('DOMContentLoaded', async function() {
             const majorOption = Array.from(majorSelect.options).find(option => option.value === userData.major);
             if (majorOption) {
                 majorOption.selected = true;
+                // Hide custom major input if visible
+                const customMajorInput = document.getElementById('customMajor');
+                customMajorInput.value = '';
+                customMajorInput.classList.add('hidden');
             } else {
                 // If major is not in dropdown, it might be a custom one
                 const customMajorInput = document.getElementById('customMajor');
                 customMajorInput.value = userData.major;
                 majorSelect.value = 'Other (enter manually below)';
+                customMajorInput.classList.remove('hidden');
             }
         }
 
@@ -48,6 +53,24 @@ document.addEventListener('DOMContentLoaded', async function() {
             const roleRadio = document.querySelector(`input[name="userRole"][value="${userData.userRole}"]`);
             if (roleRadio) {
                 roleRadio.checked = true;
+            }
+        }
+
+        // Set co-op status if exists
+        if (userData.coopStatus) {
+            const coopRadio = document.querySelector(`input[name="coopStatus"][value="${userData.coopStatus}"]`);
+            if (coopRadio) {
+                coopRadio.checked = true;
+                // Trigger change handler to disable availability if needed
+                coopRadio.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // Set notes if exists
+        if (userData.notes) {
+            const notesTextarea = document.querySelector('textarea');
+            if (notesTextarea) {
+                notesTextarea.value = userData.notes;
             }
         }
 
