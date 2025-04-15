@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+  <div class="max-w-6xl mx-auto py-10 px-6">
+    <!-- Admin Info -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+      <h2 class="text-2xl font-bold mb-4">Admin Info</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="text-sm font-medium text-gray-700">First Name</label>
+          <input type="text" value="Admin" disabled class="w-full border px-3 py-2 rounded bg-gray-100" />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Last Name</label>
+          <input type="text" value="User" disabled class="w-full border px-3 py-2 rounded bg-gray-100" />
+        </div>
+        <div>
+          <label class="text-sm font-medium text-gray-700">Email</label>
+          <input type="text" value="admin@example.com" disabled class="w-full border px-3 py-2 rounded bg-gray-100" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs and Generate Button -->
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex space-x-6">
+        <button id="dashboardTab" class="font-semibold border-b-2 border-red-600 text-red-600">Dashboard</button>
+        <button id="mentorListTab" class="text-gray-600 hover:text-red-600">Mentor List</button>
+      </div>
+      <button class="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700">Generate Schedule</button>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="font-semibold text-gray-700 mb-2">Total Mentors</h3>
+          <p class="text-xl">--</p>
+        </div>
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="font-semibold text-gray-700 mb-2">Team Leads</h3>
+          <p class="text-xl">--</p>
+        </div>
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="font-semibold text-gray-700 mb-2">On Co-op</h3>
+          <p class="text-xl">--</p>
+        </div>
+        <div class="bg-white p-6 rounded shadow">
+          <h3 class="font-semibold text-gray-700 mb-2">Incomplete Profiles</h3>
+          <p class="text-xl">--</p>
+        </div>
+        <div class="bg-white p-6 rounded shadow col-span-2">
+          <h3 class="font-semibold text-gray-700 mb-2">Majors Distribution</h3>
+          <p class="text-xl">--</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mentor List Section -->
+    <div id="mentorListSection" class="hidden">
+        <div class="bg-white rounded shadow p-6">
+        <h2 class="text-xl font-bold mb-4">Mentor List</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm text-left">
+            <thead class="bg-gray-200 text-xs uppercase tracking-wide text-gray-700">
+                <tr>
+                <th class="px-4 py-3">Name</th>
+                <th class="px-4 py-3">Email</th>
+                <th class="px-4 py-3">Team</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Sample Mentor -->
+                <tr class="border-t hover:bg-gray-50 transition">
+                <td class="px-4 py-3 whitespace-nowrap">Jane Doe</td>
+                <td class="px-4 py-3 whitespace-nowrap">jane@example.com</td>
+                <td class="px-4 py-3">
+                    <span class="text-sm font-medium text-white bg-blue-500 rounded px-2 py-1">CS</span>
+                </td>
+                <td class="px-4 py-3">
+                    <span class="text-sm font-medium text-white bg-green-500 rounded px-2 py-1">Complete</span>
+                </td>
+                <td class="px-4 py-3">
+                    <a href="#" class="text-red-600 hover:underline">View</a>
+                </td>
+                </tr>
+                <!-- Add more mentor rows as needed -->
+            </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+  
+
+  <script>
+    const dashboardTab = document.getElementById('dashboardTab');
+    const mentorListTab = document.getElementById('mentorListTab');
+    const dashboardSection = document.getElementById('dashboardSection');
+    const mentorListSection = document.getElementById('mentorListSection');
+
+    dashboardTab.addEventListener('click', () => {
+      dashboardSection.classList.remove('hidden');
+      mentorListSection.classList.add('hidden');
+      dashboardTab.classList.add('border-b-2', 'border-red-600', 'text-red-600');
+      mentorListTab.classList.remove('border-b-2', 'border-red-600', 'text-red-600');
+    });
+
+    mentorListTab.addEventListener('click', () => {
+      dashboardSection.classList.add('hidden');
+      mentorListSection.classList.remove('hidden');
+      mentorListTab.classList.add('border-b-2', 'border-red-600', 'text-red-600');
+      dashboardTab.classList.remove('border-b-2', 'border-red-600', 'text-red-600');
+    });
+  </script>
+</body>
+</html>
