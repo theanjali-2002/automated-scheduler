@@ -190,6 +190,42 @@ document.addEventListener('DOMContentLoaded', async function() {
             window.location.href = '/index.html';
         }, 3000);
     }
+
+    // Tooltip logic for disabled fields and info icons
+    const tooltip = document.getElementById('tooltip');
+    const tooltipMessage = "You can't modify this. If you have issues, reach out to the admin.";
+
+    function showTooltip(e) {
+        tooltip.textContent = tooltipMessage;
+        tooltip.style.left = e.pageX + 10 + 'px';
+        tooltip.style.top = e.pageY + 10 + 'px';
+        tooltip.classList.remove('hidden');
+    }
+
+    function moveTooltip(e) {
+        tooltip.style.left = e.pageX + 10 + 'px';
+        tooltip.style.top = e.pageY + 10 + 'px';
+    }
+
+    function hideTooltip() {
+        tooltip.classList.add('hidden');
+    }
+
+    // Select disabled inputs and info icons
+    const disabledInputs = document.querySelectorAll('input[disabled]');
+    const infoIcons = document.querySelectorAll('.info-icon');
+
+    disabledInputs.forEach(input => {
+        input.addEventListener('mouseenter', showTooltip);
+        input.addEventListener('mousemove', moveTooltip);
+        input.addEventListener('mouseleave', hideTooltip);
+    });
+
+    infoIcons.forEach(icon => {
+        icon.addEventListener('mouseenter', showTooltip);
+        icon.addEventListener('mousemove', moveTooltip);
+        icon.addEventListener('mouseleave', hideTooltip);
+    });
 });
 
 // Utility function to show error messages
@@ -210,4 +246,4 @@ function showSuccess(message) {
     successDiv.innerHTML = message;
     document.body.appendChild(successDiv);
     setTimeout(() => successDiv.remove(), 5000);
-} 
+}
