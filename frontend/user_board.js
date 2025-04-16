@@ -91,6 +91,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         detailsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            if (!confirm("Are you sure you want to make this change? Admins will be notified of the change made.")) {
+                return;
+            }
+
             const majorDropdown = document.getElementById('majorDropdown');
             const customMajor = document.getElementById('customMajor');
             let selectedMajor;
@@ -151,6 +155,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Handle availability submission
         document.getElementById('availabilitySubmit').addEventListener('click', async () => {
+            if (!confirm("Are you sure you want to make this change? Admins will be notified of the change made.")) {
+                return;
+            }
+
             const availability = [];
             days.forEach(day => {
                 const slots = [];
