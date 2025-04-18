@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userIdParam = urlParams.get('userId');
+    const isAdminView = !!userIdParam;
+
     // Check if user is logged in
     const token = localStorage.getItem('token');
     if (!token) {
@@ -11,11 +15,12 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     try {
         // Fetch user data
-        const response = await fetch(`${API_URL}/profile`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
+        const response = await fetch(
+            isAdminView ? `${API_URL}/admin/profile/${userIdParam}` : `${API_URL}/profile`,
+            {
+              headers: { 'Authorization': `Bearer ${token}` }
             }
-        });
+          );          
 
         if (!response.ok) {
             throw new Error('Failed to fetch user data');
@@ -28,6 +33,34 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('firstName').value = userData.firstName;
         document.getElementById('lastName').value = userData.lastName;
         document.getElementById('email').value = userData.email;
+
+        if (isAdminView) {
+            const pageLabel = document.getElementById('pageModeLabel');
+            if (pageLabel) {
+                pageLabel.textContent = 'Admin is editing this user profile';
+                pageLabel.classList.remove('hidden');
+                pageLabel.classList.add('text-red-600');
+            }
+            // Update page heading
+            document.getElementById('pageModeLabel').textContent = 'Admin is editing this user profile';
+        
+            // Hide original greeting
+            const greeting = document.getElementById('userGreeting');
+            if (greeting) greeting.classList.add('hidden');
+        
+            // Hide logout button (optional for admin editing mode)
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.classList.add('hidden');
+        
+            // Add red admin banner
+            const adminBanner = document.createElement('h1');
+            adminBanner.textContent = "Admin is editing this user's profile";
+            adminBanner.className = "text-2xl font-bold text-red-600 mb-4";
+            document.querySelector('main')?.prepend(adminBanner);
+        
+            // Show back-to-admin link
+            document.getElementById('adminBack').classList.remove('hidden');
+        }             
 
         // Set major if exists
         if (userData.major) {
@@ -132,7 +165,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             try {
-                const response = await fetch(`${API_URL}/details`, {
+                const response = await fetch(
+                    isAdminView ? `${API_URL}/admin/details/${userIdParam}` : `${API_URL}/details`,
+                    {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

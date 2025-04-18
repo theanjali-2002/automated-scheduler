@@ -149,7 +149,7 @@ async function loadMentorList(API_URL, token) {
                     <span class="text-sm font-medium text-white bg-green-500 rounded px-2 py-1">–</span>
                 </td>
                 <td class="px-4 py-3">
-                    <a href="#" class="text-red-600 hover:underline">View</a>
+                    <a href="/user_board.html?userId=${user._id}" class="text-red-600 hover:underline">View</a>
                 </td>
             `;
             tbody.appendChild(tr);

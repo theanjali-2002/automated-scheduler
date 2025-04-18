@@ -271,5 +271,26 @@ router.post('/profile', auth, async (req, res) => {
     }
 });
 
+// GET a user's profile by ID (admin only)
+router.get('/admin/profile/:id', auth, adminOnly, async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+});
+
+// POST to update any user’s data (admin only)
+router.post('/admin/details/:id', auth, adminOnly, async (req, res) => {
+    const { firstName, lastName, email, userRole, major, coopStatus, notes } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    Object.assign(user, { firstName, lastName, email, userRole, major, coopStatus, notes });
+    await user.save();
+
+    res.json({ message: 'User updated by admin successfully.' });
+});
+
+  
+
 // Export the router to be used in server.js
 module.exports = router;

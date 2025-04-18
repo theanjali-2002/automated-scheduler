@@ -9,8 +9,13 @@
 <body class="bg-gray-100 min-h-screen font-sans">
 
   <div class="max-w-5xl mx-auto py-10 px-6">
+    <h2 class="text-xl font-bold mb-2 hidden" id="pageModeLabel">Admin is editing this user profile</h2>
+    <div id="adminBack" class="mb-4 hidden">
+      <a href="/admin_board.html" class="text-sm text-blue-600 hover:underline">← Back to Admin Dashboard</a>
+    </div>    
+
     <!-- Welcome Section -->
-    <h1 class="text-3xl font-bold mb-6">Hi, <span class="text-red-600" id="userFirstName">John</span>! 👋</h1>
+    <h1 id="userGreeting" class="text-3xl font-bold mb-6">Hi, <span id="userFirstName" class="text-red-600">John</span>! 👋</h1>
     <div class="text-right mb-6">
       <button id="logoutBtn" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">Logout </button>
     </div>    
