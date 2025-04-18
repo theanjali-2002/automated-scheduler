@@ -223,5 +223,53 @@ router.get('/profile', auth, async (req, res) => {
     }
 });
 
+// Update user profile (firstName, lastName, email)
+router.post('/profile', auth, async (req, res) => {
+    let { firstName, lastName, email } = req.body;
+
+    // Normalize email
+    if (email) {
+        email = email.trim().toLowerCase();
+    }
+
+    if (!firstName || !lastName || !email) {
+        return res.status(400).json({ error: 'First name, last name, and email are required.' });
+    }
+
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        // Only check for duplicates if email has actually changed
+        if (email !== user.email) {
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ error: 'Email is already in use by another user.' });
+            }
+        }
+
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.email = email;
+
+        await user.save();
+
+        res.status(200).json({
+            message: 'Profile updated successfully.',
+            user: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
 // Export the router to be used in server.js
 module.exports = router;
