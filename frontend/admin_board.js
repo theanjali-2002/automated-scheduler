@@ -119,7 +119,7 @@ async function loadMentorList(API_URL, token) {
         const users = await safeJsonResponse(res);
         if (!res.ok || !users) throw new Error('Failed to fetch mentor list');
 
-        // ✅ Sort: admins first
+        // Sort: admins first
         users.sort((a, b) => {
             if (a.role === 'admin' && b.role !== 'admin') return -1;
             if (a.role !== 'admin' && b.role === 'admin') return 1;
@@ -132,7 +132,7 @@ async function loadMentorList(API_URL, token) {
         users.forEach(user => {
             const tr = document.createElement('tr');
 
-            // ✅ Highlight admins with light red background
+            // Highlight admins with light red background
             tr.className = `border-t hover:bg-gray-50 transition ${
                 user.role === 'admin' ? 'bg-red-100' : ''
             }`;
@@ -160,3 +160,9 @@ async function loadMentorList(API_URL, token) {
         showError('Failed to load mentor list.');
     }
 }
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    window.location.href = '/index.html';
+});

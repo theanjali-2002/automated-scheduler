@@ -255,3 +255,9 @@ function showSuccess(message) {
     document.body.appendChild(successDiv);
     setTimeout(() => successDiv.remove(), 5000);
 }
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    window.location.href = '/index.html';
+});
