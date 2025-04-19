@@ -60,6 +60,20 @@ document.addEventListener('DOMContentLoaded', async function() {
         
             // Show back-to-admin link
             document.getElementById('adminBack').classList.remove('hidden');
+
+            // Enable inputs for admin editing
+            document.getElementById('firstName')?.removeAttribute('disabled');
+            document.getElementById('lastName')?.removeAttribute('disabled');
+            document.getElementById('email')?.removeAttribute('disabled');
+            document.querySelector('input[type="text"][value="user"]')?.removeAttribute('disabled');
+            document.querySelectorAll('input[disabled], textarea[disabled]').forEach(el => el.removeAttribute('disabled'));
+            ['firstName', 'lastName', 'email', 'userrole'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                  input.classList.remove('bg-gray-100');
+                  input.classList.add('bg-white');
+                }
+              });
         }             
 
         // Set major if exists
@@ -147,11 +161,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
 
             const formData = {
+                firstName: document.getElementById('firstName')?.value.trim(),
+                lastName: document.getElementById('lastName')?.value.trim(),
+                email: document.getElementById('email')?.value.trim(),
                 userRole: document.querySelector('input[name="userRole"]:checked')?.value,
-                major: selectedMajor,
+                major: selectedMajor, 
                 coopStatus: document.querySelector('input[name="coopStatus"]:checked')?.value,
-                notes: document.querySelector('textarea').value
-            };
+                notes: document.querySelector('textarea')?.value
+              };              
 
             // Validate required fields
             if (!formData.userRole) {
@@ -182,7 +199,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     throw new Error(data.error || 'Failed to update details');
                 }
 
-                showSuccess('Details updated successfully!');
+                showSuccess(isAdminView ? 'User profile updated successfully!' : 'Details updated successfully!');
             } catch (error) {
                 showError(error.message);
             }
@@ -206,7 +223,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
 
             try {
-                const response = await fetch(`${API_URL}/availability`, {
+                const endpoint = isAdminView
+                    ? `${API_URL}/admin/availability/${userIdParam}`
+                    : `${API_URL}/availability`;
+
+                    const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

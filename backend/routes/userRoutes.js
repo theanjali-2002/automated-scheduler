@@ -290,6 +290,37 @@ router.post('/admin/details/:id', auth, adminOnly, async (req, res) => {
     res.json({ message: 'User updated by admin successfully.' });
 });
 
+router.post('/admin/availability/:id', auth, adminOnly, async (req, res) => {
+    const { availability } = req.body;
+
+    if (!availability || !Array.isArray(availability) || availability.length === 0) {
+        return res.status(400).json({ error: 'Availability must be a non-empty array.' });
+    }
+
+    const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const isValid = availability.every(item =>
+        validDays.includes(item.day) &&
+        Array.isArray(item.slots) &&
+        item.slots.every(slot => typeof slot === 'string')
+    );
+
+    if (!isValid) {
+        return res.status(400).json({ error: 'Invalid availability format.' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.params.id,
+        { availability },
+        { new: true }
+    );
+
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.status(200).json({
+        message: 'Availability updated successfully by admin',
+        availability: user.availability
+    });
+});
   
 
 // Export the router to be used in server.js
