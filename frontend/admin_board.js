@@ -146,7 +146,13 @@ async function loadMentorList(API_URL, token) {
                     } rounded px-2 py-1">${user.role}</span>
                 </td>
                 <td class="px-4 py-3">
-                    <span class="text-sm font-medium text-white bg-green-500 rounded px-2 py-1">–</span>
+                    <span class="text-sm font-medium text-white rounded px-2 py-1 ${
+                        user.isComplete
+                            ? 'bg-green-500'
+                            : 'bg-yellow-500'
+                    }">
+                        ${user.isComplete ? 'Complete' : 'Incomplete'}
+                    </span>
                 </td>
                 <td class="px-4 py-3">
                     <a href="/user_board.html?userId=${user._id}" class="text-red-600 hover:underline">View</a>

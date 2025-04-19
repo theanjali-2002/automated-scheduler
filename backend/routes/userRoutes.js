@@ -54,10 +54,39 @@ router.post('/signup', async (req, res) => {
 
 
 
-router.get('/admin/data', adminOnly, async (req, res) => {
+router.get('/admin/data', auth, adminOnly, async (req, res) => {
     try {
-        const users = await User.find({}, 'firstName lastName email role');
-        res.status(200).json(users); // Ensure response is sent only once
+        const users = await User.find({}, 'firstName lastName email role userRole major coopStatus availability');
+
+        const enrichedUsers = users.map(user => {
+            const isComplete =
+                !!user.firstName &&
+                !!user.lastName &&
+                !!user.email &&
+                !!user.userRole &&
+                !!user.major &&
+                !!user.coopStatus &&
+                Array.isArray(user.availability) &&
+                user.availability.reduce((count, day) => count + day.slots.length, 0) >= 6;
+
+            // debug log here
+            if (!isComplete) {
+                console.log(`Incomplete: ${user.email}`);
+                console.log({
+                    userRole: user.userRole,
+                    major: user.major,
+                    coopStatus: user.coopStatus,
+                    slots: user.availability?.reduce((c, d) => c + d.slots.length, 0) || 0
+                });
+            }
+
+            return {
+                ...user.toObject(),
+                isComplete
+            };
+        });
+
+        res.status(200).json(enrichedUsers);
     } catch (err) {
         console.error(err); // Log the error for debugging
         res.status(500).json({ error: 'Failed to fetch admin data' });
