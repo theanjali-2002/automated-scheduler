@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('adminLastName').value = adminData.lastName;
         document.getElementById('adminEmail').value = adminData.email;
 
-        // Load mentor list 👇
+        // Load mentor list 
         await loadMentorList(API_URL, token);
         await loadDashboardMetrics(API_URL, token);
 
@@ -66,6 +66,31 @@ document.addEventListener('DOMContentLoaded', async function() {
                 showError(error.message);
             }
         });
+
+        // Add event listener for Generate Schedule button
+        const generateBtn = document.getElementById('generateScheduleBtn');
+         if (generateBtn) {
+             generateBtn.addEventListener('click', async () => {
+                 if (!confirm("Are you sure you want to generate the schedule?")) {
+                     return;
+                 }
+                 try {
+                     const res = await fetch('http://localhost:5000/api/schedule/generate', {
+                         method: 'POST',
+                         headers: {
+                             'Authorization': `Bearer ${token}`
+                         }
+                     });
+                     const data = await safeJsonResponse(res);
+                     if (!res.ok) {
+                         throw new Error(data?.error || 'Failed to generate schedule');
+                     }
+                     showSuccess(data.message || 'Schedule generated successfully!');
+                 } catch (err) {
+                     showError(err.message);
+                 }
+             });
+         }
 
     } catch (error) {
         console.error(error);

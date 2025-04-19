@@ -10,6 +10,7 @@ const path = require('path');
 dotenv.config();
 
 const userRoutes = require('./routes/userRoutes'); 
+const scheduleRoutes = require('./routes/scheduleRoutes'); // Added schedule routes
 
 // Middleware
 app.use(express.json());
@@ -20,6 +21,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // Use the user routes
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/schedule', scheduleRoutes); // Register schedule routes
 
 // Route to serve index.html
 app.get('/', (req, res) => {

@@ -32,5 +32,5 @@ const userSchema = new mongoose.Schema({
     notes: { type: String, maxlength: 500, default: '' }
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.models.User || mongoose.model('User', userSchema);
 module.exports = User;

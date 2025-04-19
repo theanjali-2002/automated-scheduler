@@ -2,7 +2,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const { generateScheduleToExcel } = require('./scheduleAlgorithm');
 
-async function main() {
+async function generateSchedule() {
     try {
         // Connect to MongoDB
         await mongoose.connect(process.env.MONGO_URI);
@@ -21,14 +21,11 @@ async function main() {
         
         console.log('Excel file saved at:', result.filePath);
 
+        return result.filePath;
     } catch (error) {
         console.error('Error:', error);
-    } finally {
-        // Close MongoDB connection
-        await mongoose.connection.close();
-        console.log('MongoDB connection closed');
-    }
+        throw error;
+    } 
 }
 
-// Run the script
-main(); 
+module.exports = generateSchedule;
