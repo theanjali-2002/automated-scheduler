@@ -350,6 +350,41 @@ router.post('/admin/availability/:id', auth, adminOnly, async (req, res) => {
         availability: user.availability
     });
 });
+
+// Admin dashboard metrics
+router.get('/admin/metrics', auth, adminOnly, async (req, res) => {
+    try {
+      const users = await User.find();
+  
+      const totalMentors = users.filter(u => u.role === 'user').length;
+      const teamLeads = users.filter(u => u.userRole === 'Team Lead & Peer Mentor').length;
+      const onCoop = users.filter(u => u.coopStatus === 'Yes').length;
+      const incomplete = users.filter(u => {
+        return !(u.firstName && u.lastName && u.email && u.userRole && u.major && u.coopStatus &&
+          Array.isArray(u.availability) && u.availability.reduce((count, day) => count + day.slots.length, 0) >= 6);
+      }).length;
+  
+      // Count majors
+      const majorsMap = {};
+      for (const u of users) {
+        if (u.major) {
+          majorsMap[u.major] = (majorsMap[u.major] || 0) + 1;
+        }
+      }
+  
+      res.json({
+        totalMentors,
+        teamLeads,
+        onCoop,
+        incompleteProfiles: incomplete,
+        majorsDistribution: majorsMap
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to fetch metrics' });
+    }
+  });
+  
   
 
 // Export the router to be used in server.js

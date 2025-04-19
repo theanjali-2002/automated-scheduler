@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Load mentor list 👇
         await loadMentorList(API_URL, token);
+        await loadDashboardMetrics(API_URL, token);
 
         // Handle form submission
         const detailsForm = document.querySelector('form');
@@ -166,6 +167,52 @@ async function loadMentorList(API_URL, token) {
         showError('Failed to load mentor list.');
     }
 }
+
+async function loadDashboardMetrics(API_URL, token) {
+    try {
+      const res = await fetch(`${API_URL}/admin/metrics`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch dashboard metrics');
+  
+      document.querySelector('#dashboardSection').innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="bg-white p-6 rounded shadow">
+            <h3 class="font-semibold text-gray-700 mb-2">Total Mentors</h3>
+            <p class="text-xl">${data.totalMentors}</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <h3 class="font-semibold text-gray-700 mb-2">Team Leads</h3>
+            <p class="text-xl">${data.teamLeads}</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <h3 class="font-semibold text-gray-700 mb-2">On Co-op</h3>
+            <p class="text-xl">${data.onCoop}</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow">
+            <h3 class="font-semibold text-gray-700 mb-2">Incomplete Profiles</h3>
+            <p class="text-xl">${data.incompleteProfiles}</p>
+          </div>
+          <div class="bg-white p-6 rounded shadow col-span-2">
+            <h3 class="font-semibold text-gray-700 mb-2">Majors Distribution</h3>
+            <div class="text-sm space-y-1">
+              ${Object.entries(data.majorsDistribution).map(([major, count]) => (
+                `<p><strong>${major}</strong>: ${count}</p>`
+              )).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    } catch (err) {
+      console.error(err);
+      showError('Failed to load dashboard metrics.');
+    }
+}
+  
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('token');
