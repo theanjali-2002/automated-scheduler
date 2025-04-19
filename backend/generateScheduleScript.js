@@ -8,7 +8,7 @@ async function generateSchedule() {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('Connected to MongoDB');
 
-        // Generate schedule and save to Excel
+        // Generate schedule and get Excel buffer
         console.log('Generating schedule...');
         const result = await generateScheduleToExcel();
         
@@ -19,9 +19,7 @@ async function generateSchedule() {
             console.log('Schedule generated successfully');
         }
         
-        console.log('Excel file saved at:', result.filePath);
-
-        return result.filePath;
+        return result.buffer;
     } catch (error) {
         console.error('Error:', error);
         throw error;

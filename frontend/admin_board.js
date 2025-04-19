@@ -70,26 +70,46 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Add event listener for Generate Schedule button
         const generateBtn = document.getElementById('generateScheduleBtn');
          if (generateBtn) {
-             generateBtn.addEventListener('click', async () => {
-                 if (!confirm("Are you sure you want to generate the schedule?")) {
-                     return;
-                 }
-                 try {
-                     const res = await fetch('http://localhost:5000/api/schedule/generate', {
-                         method: 'POST',
-                         headers: {
-                             'Authorization': `Bearer ${token}`
-                         }
-                     });
-                     const data = await safeJsonResponse(res);
-                     if (!res.ok) {
-                         throw new Error(data?.error || 'Failed to generate schedule');
-                     }
-                     showSuccess(data.message || 'Schedule generated successfully!');
-                 } catch (err) {
-                     showError(err.message);
-                 }
-             });
+            generateBtn.addEventListener('click', async () => {
+                if (!confirm("Are you sure you want to generate the schedule?")) {
+                    return;
+                }
+                try {
+                    const res = await fetch('http://localhost:5000/api/schedule/generate', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        throw new Error(errorData?.error || 'Failed to generate schedule');
+                    }
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+
+                    // Get filename from Content-Disposition header
+                    const disposition = res.headers.get('Content-Disposition');
+                    let fileName = 'schedule.xlsx';
+                    if (disposition && disposition.includes('filename=')) {
+                        fileName = disposition
+                            .split('filename=')[1]
+                            .replace(/["']/g, '')
+                            .trim();
+                    }
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    showSuccess('Schedule downloaded successfully!');
+                } catch (err) {
+                    showError(err.message);
+                }
+            });
          }
 
     } catch (error) {

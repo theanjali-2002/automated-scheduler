@@ -257,25 +257,12 @@ async function generateScheduleToExcel() {
         };
     });
 
-    // Save the file
-    const date = new Date();
-    const formattedDate = date.toISOString()
-        .replace('T', '_')
-        .replace(/:/g, '-')
-        .split('.')[0];
-    const fileName = `schedule_${formattedDate}.xlsx`;
-    const filePath = path.join(__dirname, 'outputs', fileName);
-
-    // Create outputs directory if it doesn't exist
-    if (!fs.existsSync(path.join(__dirname, 'outputs'))) {
-        fs.mkdirSync(path.join(__dirname, 'outputs'));
-    }
-
-    await workbook.xlsx.writeFile(filePath);
+    // Generate buffer instead of saving file
+    const buffer = await workbook.xlsx.writeBuffer();
 
     return {
         success: true,
-        filePath,
+        buffer,
         issues: result.issues
     };
 }
