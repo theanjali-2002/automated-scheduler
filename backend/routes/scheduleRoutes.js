@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { adminOnly } = require('../middleware/auth');
-const generateSchedule = require('../generateScheduleScript'); 
+const generateSchedule = require('../generateScheduleScript');
 const path = require('path');
 const moment = require('moment');
 const ExcelJS = require('exceljs');
@@ -44,8 +44,11 @@ router.get('/availability-export', adminOnly, async (req, res) => {
             { header: 'Email', key: 'email', width: 30 },
             { header: 'Major', key: 'major', width: 20 },
             { header: 'User Role', key: 'userRole', width: 25 },
+            { header: 'Co-op Status', key: 'coopStatus', width: 15 },
+            { header: 'Notes', key: 'notes', width: 40 },
             { header: 'Availability (Day - Slots)', key: 'availability', width: 60 }
         ];
+
 
         users.forEach(user => {
             const availabilityString = user.availability.map(
@@ -57,7 +60,9 @@ router.get('/availability-export', adminOnly, async (req, res) => {
                 lastName: user.lastName,
                 email: user.email,
                 major: user.major,
+                coopStatus: user.coopStatus,
                 userRole: user.userRole,
+                notes: user.notes,
                 availability: availabilityString
             });
         });
