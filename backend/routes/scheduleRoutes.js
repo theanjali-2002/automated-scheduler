@@ -15,9 +15,13 @@ router.post('/generate', adminOnly, async (req, res) => {
         // Call the schedule generation function
         const buffer = await generateSchedule();
 
+        // Log schedule generation
         await AuditLog.create({
             actionType: 'schedule_generated',
-            performedBy: req.user.id
+            performedBy: req.user.id,
+            details: {
+                note: 'Schedule XLSX generated and downloaded'
+            }
         });
 
         // Generate timestamp for filename
@@ -75,10 +79,14 @@ router.get('/availability-export', adminOnly, async (req, res) => {
 
         const buffer = await workbook.xlsx.writeBuffer();
 
+        // Audit log AFTER generation is successful
         await AuditLog.create({
             actionType: 'availability_export',
             performedBy: req.user.id,
-            details: { format: 'xlsx' }
+            details: {
+                format: 'xlsx',
+                exportedMentors: users.length
+            }
         });
 
         const fileName = `availability_export_${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`;

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Audit Log Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-gray-800">Audit Logs</h1>
+
+        <div class="mb-4">
+            <button id="backBtn" class="px-4 py-2 bg-gray-500 text-white rounded">← Back to Dashboard</button>
+        </div>
+
+        <div class="bg-white rounded shadow p-4 overflow-x-auto">
+            <table class="min-w-full text-sm divide-y divide-gray-200">
+                <thead class="bg-gray-100 text-xs uppercase font-semibold text-gray-600 sticky top-0">
+                    <tr>
+                        <th class="px-4 py-2 text-left">Timestamp</th>
+                        <th class="px-4 py-2 text-left">Action</th>
+                        <th class="px-4 py-2 text-left">Performed By</th>
+                        <th class="px-4 py-2 text-left">Affected User</th>
+                        <th class="px-4 py-2 text-left">Details</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = '/admin_board.html';
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return window.location.href = '/index.html';
+
+            try {
+                const res = await fetch('http://localhost:5000/api/audit-logs', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Failed to fetch audit logs');
+                const logs = await res.json();
+
+                const tbody = document.getElementById('logTableBody');
+                tbody.innerHTML = '';
+
+                logs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.classList.add('border-t', 'hover:bg-gray-50');
+
+                    // Format details object
+                    let detailsHTML = '-';
+                    if (log.details && typeof log.details === 'object') {
+                        const entries = Object.entries(log.details);
+                        detailsHTML = entries.map(([key, value]) => {
+                            return `<div><span class="font-semibold text-gray-700">${key}:</span> ${Array.isArray(value) ? value.join(', ') : value}</div>`;
+                        }).join('');
+                    }
+
+                    row.innerHTML = `
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">${new Date(log.timestamp).toLocaleString()}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm text-blue-700 font-medium">${log.actionType}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm">${log.performedBy?.email || '-'}</td>
+    <td class="px-4 py-2 whitespace-nowrap text-sm">${log.affectedUser?.email || '-'}</td>
+    <td class="px-4 py-2 text-sm text-gray-800">${detailsHTML}</td>
+  `;
+                    tbody.appendChild(row);
+                });
+
+            } catch (err) {
+                alert('Error loading audit logs');
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+
+</html>

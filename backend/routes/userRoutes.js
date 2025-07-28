@@ -166,21 +166,31 @@ router.post('/availability', auth, async (req, res) => {
             });
         }
 
-        // Save or update user's availability
-        const user = await User.findByIdAndUpdate(
-            req.user.id,
-            { availability },
-            { new: true }
-        );
+        // Fetch current user
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // Compare availability (basic stringify comparison)
+        const oldString = JSON.stringify(user.availability || []);
+        const newString = JSON.stringify(availability);
+
+        // Update availability
+        user.availability = availability;
+        await user.save();
 
         res.status(200).json({ message: 'Availability updated successfully', availability: user.availability });
 
-        await AuditLog.create({
-            actionType: 'availability_update',
-            performedBy: req.user.id,
-            affectedUser: req.user.id,
-            details: { slotCount: user.availability.reduce((c, d) => c + d.slots.length, 0) }
-        });
+        // Log only if changed
+        if (oldString !== newString) {
+            await AuditLog.create({
+                actionType: 'availability_update',
+                performedBy: req.user.id,
+                affectedUser: req.user.id,
+                details: {
+                    slotCount: user.availability.reduce((c, d) => c + d.slots.length, 0)
+                }
+            });
+        }
 
     } catch (err) {
         console.error(err);
@@ -204,7 +214,17 @@ router.post('/details', auth, async (req, res) => {
             return res.status(404).json({ error: 'User not found.' });
         }
 
-        // Update user details
+        const updatedFields = [];
+
+        // Check each field and track if it changes
+        if (user.major !== major) updatedFields.push('major');
+        if (user.coopStatus !== coopStatus) updatedFields.push('coopStatus');
+        if ((notes || '') !== (user.notes || '')) updatedFields.push('notes');
+        if (req.user.role === 'user' && user.userRole !== userRole) {
+            updatedFields.push('userRole');
+        }
+
+        // Perform the updates
         user.major = major;
         user.notes = notes || '';
         user.coopStatus = coopStatus;
@@ -214,14 +234,15 @@ router.post('/details', auth, async (req, res) => {
 
         await user.save();
 
-        await AuditLog.create({
-            actionType: 'self_details_update',
-            performedBy: req.user.id,
-            affectedUser: req.user.id,
-            details: {
-                updatedFields: ['major', 'userRole', 'coopStatus', ...(notes ? ['notes'] : [])]
-            }
-        });
+        // Log only if something actually changed
+        if (updatedFields.length > 0) {
+            await AuditLog.create({
+                actionType: 'self_details_update',
+                performedBy: req.user.id,
+                affectedUser: req.user.id,
+                details: { updatedFields }
+            });
+        }
 
         res.status(200).json({
             message: 'Details submitted successfully.',
@@ -303,20 +324,28 @@ router.post('/profile', auth, async (req, res) => {
             }
         }
 
+        // Track what was actually changed
+        const updatedFields = [];
+        if (user.firstName !== firstName) updatedFields.push('firstName');
+        if (user.lastName !== lastName) updatedFields.push('lastName');
+        if (user.email !== email) updatedFields.push('email');
+
+        // Apply the changes
         user.firstName = firstName;
         user.lastName = lastName;
         user.email = email;
 
         await user.save();
 
-        console.log('Logging self profile update...');
-        console.log('SELF PROFILE UPDATE - REQ.USER:', req.user);
-        await AuditLog.create({
-            actionType: 'self_profile_update',
-            performedBy: req.user.id,
-            affectedUser: req.user.id,
-            details: { updatedFields: ['firstName', 'lastName', 'email'] }
-        });
+        // Only log if something changed
+        if (updatedFields.length > 0) {
+            await AuditLog.create({
+                actionType: 'self_profile_update',
+                performedBy: req.user.id,
+                affectedUser: req.user.id,
+                details: { updatedFields }
+            });
+        }
 
         res.status(200).json({
             message: 'Profile updated successfully.',
@@ -346,15 +375,28 @@ router.post('/admin/details/:id', auth, adminOnly, async (req, res) => {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
+    const updatedFields = [];
+
+    if (user.firstName !== firstName) updatedFields.push('firstName');
+    if (user.lastName !== lastName) updatedFields.push('lastName');
+    if (user.email !== email) updatedFields.push('email');
+    if (user.userRole !== userRole) updatedFields.push('userRole');
+    if (user.major !== major) updatedFields.push('major');
+    if (user.coopStatus !== coopStatus) updatedFields.push('coopStatus');
+    if ((user.notes || '') !== (notes || '')) updatedFields.push('notes');
+
+    // Apply the changes regardless (admin can override), but log only if actual changes
     Object.assign(user, { firstName, lastName, email, userRole, major, coopStatus, notes });
     await user.save();
 
-    await AuditLog.create({
-        actionType: 'admin_profile_update',
-        performedBy: req.user.id,
-        affectedUser: user._id,
-        details: { updatedFields: ['firstName', 'lastName', 'email', 'userRole', 'major', 'coopStatus', 'notes'] }
-    });
+    if (updatedFields.length > 0) {
+        await AuditLog.create({
+            actionType: 'admin_profile_update',
+            performedBy: req.user.id,
+            affectedUser: user._id,
+            details: { updatedFields }
+        });
+    }
 
     res.json({ message: 'User updated by admin successfully.' });
 });
@@ -377,24 +419,30 @@ router.post('/admin/availability/:id', auth, adminOnly, async (req, res) => {
         return res.status(400).json({ error: 'Invalid availability format.' });
     }
 
-    const user = await User.findByIdAndUpdate(
-        req.params.id,
-        { availability },
-        { new: true }
-    );
-
+    const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const oldAvailability = JSON.stringify(user.availability || []);
+    const newAvailability = JSON.stringify(availability);
+
+    // Only update and log if there's a change
+    if (oldAvailability !== newAvailability) {
+        user.availability = availability;
+        await user.save();
+
+        await AuditLog.create({
+            actionType: 'admin_availability_update',
+            performedBy: req.user.id,
+            affectedUser: user._id,
+            details: {
+                slotCount: availability.reduce((sum, day) => sum + day.slots.length, 0)
+            }
+        });
+    }
 
     res.status(200).json({
         message: 'Availability updated successfully by admin',
         availability: user.availability
-    });
-
-    await AuditLog.create({
-        actionType: 'admin_availability_update',
-        performedBy: req.user.id,
-        affectedUser: user._id,
-        details: { slotCount: user.availability.reduce((c, d) => c + d.slots.length, 0) }
     });
 
 });

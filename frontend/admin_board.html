@@ -14,9 +14,19 @@
     <form id="adminInfoForm" class="bg-white shadow-md rounded-lg p-6 mb-6">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">Admin Info</h2>
-        <button id="logoutBtn" type="button" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"> Logout
-        </button>
+        <div class="flex items-center space-x-2">
+          <a href="audit_log.html" title="View Audit Logs" id="auditLogBtn"
+            class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 border border-gray-400 px-3 py-2 rounded shadow-sm transition">
+            Audit Logs
+          </a>
+
+          <!-- Logout Button -->
+          <button id="logoutBtn" type="button" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+            Logout
+          </button>
+        </div>
       </div>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label for="adminFirstName" class="text-sm font-medium text-gray-700">First Name</label>

@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             // Hide dashboard
             document.getElementById('dashboardSection').classList.add('hidden');
             document.getElementById('adminControls')?.classList.add('hidden');
+            document.getElementById('auditLogBtn')?.classList.add('hidden');
 
             // Show notice
             const noticeDiv = document.createElement('div');

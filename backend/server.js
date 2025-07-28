@@ -23,6 +23,9 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/schedule', scheduleRoutes); // Register schedule routes
 
+// Use the audit routes
+app.use('/api', require('./routes/auditRoutes'));
+
 // Route to serve index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
