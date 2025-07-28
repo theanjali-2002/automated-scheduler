@@ -25,7 +25,7 @@
 const request = require('supertest');
 const { app, server } = require('../server');
 const mongoose = require('mongoose');
-const User = require('../models/user'); 
+const User = require('../models/User'); 
 
 // Cleanup users before all tests
 beforeAll(async () => {
