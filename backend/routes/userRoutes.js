@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 const { auth, adminOnly } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
+const AuditLog = require('../models/AuditLog');
 
 router.post('/signup', async (req, res) => {
     const { firstName, lastName, email, password, role, adminSecret } = req.body;
@@ -173,6 +174,14 @@ router.post('/availability', auth, async (req, res) => {
         );
 
         res.status(200).json({ message: 'Availability updated successfully', availability: user.availability });
+
+        await AuditLog.create({
+            actionType: 'availability_update',
+            performedBy: req.user.id,
+            affectedUser: req.user.id,
+            details: { slotCount: user.availability.reduce((c, d) => c + d.slots.length, 0) }
+        });
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
@@ -204,6 +213,15 @@ router.post('/details', auth, async (req, res) => {
         }
 
         await user.save();
+
+        await AuditLog.create({
+            actionType: 'self_details_update',
+            performedBy: req.user.id,
+            affectedUser: req.user.id,
+            details: {
+                updatedFields: ['major', 'userRole', 'coopStatus', ...(notes ? ['notes'] : [])]
+            }
+        });
 
         res.status(200).json({
             message: 'Details submitted successfully.',
@@ -271,6 +289,7 @@ router.post('/profile', auth, async (req, res) => {
     }
 
     try {
+        console.log('REQ.USER DEBUG:', req.user);
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ error: 'User not found.' });
@@ -289,6 +308,15 @@ router.post('/profile', auth, async (req, res) => {
         user.email = email;
 
         await user.save();
+
+        console.log('Logging self profile update...');
+        console.log('SELF PROFILE UPDATE - REQ.USER:', req.user);
+        await AuditLog.create({
+            actionType: 'self_profile_update',
+            performedBy: req.user.id,
+            affectedUser: req.user.id,
+            details: { updatedFields: ['firstName', 'lastName', 'email'] }
+        });
 
         res.status(200).json({
             message: 'Profile updated successfully.',
@@ -320,6 +348,13 @@ router.post('/admin/details/:id', auth, adminOnly, async (req, res) => {
 
     Object.assign(user, { firstName, lastName, email, userRole, major, coopStatus, notes });
     await user.save();
+
+    await AuditLog.create({
+        actionType: 'admin_profile_update',
+        performedBy: req.user.id,
+        affectedUser: user._id,
+        details: { updatedFields: ['firstName', 'lastName', 'email', 'userRole', 'major', 'coopStatus', 'notes'] }
+    });
 
     res.json({ message: 'User updated by admin successfully.' });
 });
@@ -354,6 +389,14 @@ router.post('/admin/availability/:id', auth, adminOnly, async (req, res) => {
         message: 'Availability updated successfully by admin',
         availability: user.availability
     });
+
+    await AuditLog.create({
+        actionType: 'admin_availability_update',
+        performedBy: req.user.id,
+        affectedUser: user._id,
+        details: { slotCount: user.availability.reduce((c, d) => c + d.slots.length, 0) }
+    });
+
 });
 
 // Admin dashboard metrics

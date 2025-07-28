@@ -7,12 +7,18 @@ const moment = require('moment');
 const ExcelJS = require('exceljs');
 const User = require('../models/User'); // path to user model
 const fs = require('fs');
+const AuditLog = require('../models/AuditLog');
 
 // POST /api/schedule/generate
 router.post('/generate', adminOnly, async (req, res) => {
     try {
         // Call the schedule generation function
         const buffer = await generateSchedule();
+
+        await AuditLog.create({
+            actionType: 'schedule_generated',
+            performedBy: req.user.id
+        });
 
         // Generate timestamp for filename
         const timestamp = moment().format('YYYY-MM-DD_HH-mm-ss');
@@ -68,6 +74,13 @@ router.get('/availability-export', adminOnly, async (req, res) => {
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
+
+        await AuditLog.create({
+            actionType: 'availability_export',
+            performedBy: req.user.id,
+            details: { format: 'xlsx' }
+        });
+
         const fileName = `availability_export_${new Date().toISOString().replace(/[:.]/g, '-')}.xlsx`;
 
         res.set({
