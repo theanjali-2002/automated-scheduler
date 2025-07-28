@@ -7,7 +7,11 @@ const jwt = require('jsonwebtoken');
 const AuditLog = require('../models/AuditLog');
 
 router.post('/signup', async (req, res) => {
-    const { firstName, lastName, email, password, role, adminSecret } = req.body;
+    const { firstName, lastName, email, password, role, adminSecret, signupCode } = req.body;
+
+    if (signupCode !== process.env.SIGNUP_CODE) {
+        return res.status(403).json({ error: 'Invalid signup code.' });
+    }
 
     let finalRole = 'user'; // Default role
 

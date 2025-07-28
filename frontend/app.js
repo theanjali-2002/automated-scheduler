@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastName: document.getElementById('last-name').value,
                 email: document.getElementById('email-signup').value,
                 password: document.getElementById('password-signup').value,
+                signupCode: document.getElementById('signup-code').value,
                 role: 'user' // Default role
             };
 
