@@ -7,7 +7,7 @@ const User = require('../models/User');
 // GET /api/audit-logs (admin only)
 router.get('/audit-logs', auth, adminOnly, async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
         const pageSize = 50;
 
         const totalLogs = await AuditLog.countDocuments();
