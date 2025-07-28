@@ -1,18 +1,18 @@
 // Handle both login and signup functionality
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Get the forms
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
 
-    // Backend API URL - adjust this to match your backend server
-    //const API_URL = 'http://localhost:5000/api/users';
-    const API_URL = '/api/users';
+    const API_URL = window.location.hostname.includes('localhost')
+        ? 'http://localhost:5000/api/users'
+        : 'https://automated-scheduler.onrender.com/api/users';
 
     // Handle Login
     if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
+        loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             try {
                 const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle Signup
     if (signupForm) {
-        signupForm.addEventListener('submit', async function(e) {
+        signupForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             // Get form values
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Show success message
                 showSuccess('Account created successfully! Redirecting to login...');
-                
+
                 // Redirect to login page after 2 seconds
                 setTimeout(() => {
                     window.location.href = '/index.html';
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4';
         errorDiv.role = 'alert';
         errorDiv.innerHTML = message;
-        
+
         // Remove any existing error messages
         const existingError = document.querySelector('[role="alert"]');
         if (existingError) {
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
         successDiv.className = 'bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mt-4';
         successDiv.role = 'alert';
         successDiv.innerHTML = message;
-        
+
         // Remove any existing messages
         const existingMessage = document.querySelector('[role="alert"]');
         if (existingMessage) {

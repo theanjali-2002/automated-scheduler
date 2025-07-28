@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
-    const API_URL = 'http://localhost:5000/api/users';
+    const API_URL = window.location.hostname.includes('localhost')
+        ? 'http://localhost:5000/api/users'
+        : 'https://automated-scheduler.onrender.com/api/users';
 
     try {
         const endpoint = viewedUserId
