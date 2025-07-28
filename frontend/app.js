@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.getElementById('signup-form');
 
     // Backend API URL - adjust this to match your backend server
-    const API_URL = 'http://localhost:5000/api/users';
+    //const API_URL = 'http://localhost:5000/api/users';
+    const API_URL = '/api/users';
 
     // Handle Login
     if (loginForm) {
