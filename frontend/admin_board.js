@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/index.html';
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Add event listener for Generate Schedule button
         const generateBtn = document.getElementById('generateScheduleBtn');
-         if (generateBtn) {
+        if (generateBtn) {
             generateBtn.addEventListener('click', async () => {
                 if (!confirm("Are you sure you want to generate the schedule?")) {
                     return;
@@ -110,7 +110,42 @@ document.addEventListener('DOMContentLoaded', async function() {
                     showError(err.message);
                 }
             });
-         }
+        }
+
+        const downloadBtn = document.getElementById('downloadAvailabilityBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', async () => {
+                try {
+                    const res = await fetch('http://localhost:5000/api/schedule/availability-export', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(err?.error || 'Failed to download availability');
+                    }
+
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const disposition = res.headers.get('Content-Disposition');
+                    let fileName = 'availability.xlsx';
+                    if (disposition && disposition.includes('filename=')) {
+                        fileName = disposition.split('filename=')[1].replace(/["']/g, '');
+                    }
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    showSuccess('Availability downloaded!');
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+        }
 
     } catch (error) {
         console.error(error);
@@ -179,24 +214,21 @@ async function loadMentorList(API_URL, token) {
             const tr = document.createElement('tr');
 
             // Highlight admins with light red background
-            tr.className = `border-t hover:bg-gray-50 transition ${
-                user.role === 'admin' ? 'bg-red-100' : ''
-            }`;
+            tr.className = `border-t hover:bg-gray-50 transition ${user.role === 'admin' ? 'bg-red-100' : ''
+                }`;
 
             tr.innerHTML = `
                 <td class="px-4 py-3 whitespace-nowrap">${user.firstName} ${user.lastName}</td>
                 <td class="px-4 py-3 whitespace-nowrap">${user.email}</td>
                 <td class="px-4 py-3">
-                    <span class="text-sm font-medium text-white ${
-                        user.role === 'admin' ? 'bg-red-600' : 'bg-blue-500'
-                    } rounded px-2 py-1">${user.role}</span>
+                    <span class="text-sm font-medium text-white ${user.role === 'admin' ? 'bg-red-600' : 'bg-blue-500'
+                } rounded px-2 py-1">${user.role}</span>
                 </td>
                 <td class="px-4 py-3">
-                    <span class="text-sm font-medium text-white rounded px-2 py-1 ${
-                        user.isComplete
-                            ? 'bg-green-500'
-                            : 'bg-yellow-500'
-                    }">
+                    <span class="text-sm font-medium text-white rounded px-2 py-1 ${user.isComplete
+                    ? 'bg-green-500'
+                    : 'bg-yellow-500'
+                }">
                         ${user.isComplete ? 'Complete' : 'Incomplete'}
                     </span>
                 </td>
@@ -215,16 +247,16 @@ async function loadMentorList(API_URL, token) {
 
 async function loadDashboardMetrics(API_URL, token) {
     try {
-      const res = await fetch(`${API_URL}/admin/metrics`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-  
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to fetch dashboard metrics');
-  
-      document.querySelector('#dashboardSection').innerHTML = `
+        const res = await fetch(`${API_URL}/admin/metrics`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to fetch dashboard metrics');
+
+        document.querySelector('#dashboardSection').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="bg-white p-6 rounded shadow">
             <h3 class="font-semibold text-gray-700 mb-2">Total Mentors</h3>
@@ -246,18 +278,18 @@ async function loadDashboardMetrics(API_URL, token) {
             <h3 class="font-semibold text-gray-700 mb-2">Majors Distribution</h3>
             <div class="text-sm space-y-1">
               ${Object.entries(data.majorsDistribution).map(([major, count]) => (
-                `<p><strong>${major}</strong>: ${count}</p>`
-              )).join('')}
+            `<p><strong>${major}</strong>: ${count}</p>`
+        )).join('')}
             </div>
           </div>
         </div>
       `;
     } catch (err) {
-      console.error(err);
-      showError('Failed to load dashboard metrics.');
+        console.error(err);
+        showError('Failed to load dashboard metrics.');
     }
 }
-  
+
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
     localStorage.removeItem('token');
