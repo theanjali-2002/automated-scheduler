@@ -76,7 +76,11 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
 
             try {
-                const response = await fetch(`${API_URL}/profile`, {
+                const endpoint = isViewingAnotherAdmin
+                    ? `${API_URL}/admin/details/${viewedUserId}`
+                    : `${API_URL}/profile`;
+
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -86,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
 
                 const result = await safeJsonResponse(response);
-                console.log('DEBUG: Profile POST result:', result);
+
                 if (!response.ok) {
                     throw new Error(result?.error || 'Failed to update details');
                 }

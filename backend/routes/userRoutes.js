@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router(); // Initialize the router
-const bcrypt = require('bcrypt'); 
-const User = require('../models/User'); 
+const bcrypt = require('bcrypt');
+const User = require('../models/User');
 const { auth, adminOnly } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 
@@ -60,14 +60,19 @@ router.get('/admin/data', auth, adminOnly, async (req, res) => {
 
         const enrichedUsers = users.map(user => {
             const isComplete =
-                !!user.firstName &&
-                !!user.lastName &&
-                !!user.email &&
-                !!user.userRole &&
-                !!user.major &&
-                !!user.coopStatus &&
-                Array.isArray(user.availability) &&
-                user.availability.reduce((count, day) => count + day.slots.length, 0) >= 6;
+                user.role === 'admin'
+                    ? !!user.firstName && !!user.lastName && !!user.email
+                    : (
+                        !!user.firstName &&
+                        !!user.lastName &&
+                        !!user.email &&
+                        !!user.userRole &&
+                        !!user.major &&
+                        !!user.coopStatus &&
+                        Array.isArray(user.availability) &&
+                        user.availability.reduce((count, day) => count + day.slots.length, 0) >= 6
+                    );
+
 
             // debug log here
             if (!isComplete) {
@@ -142,7 +147,7 @@ router.post('/availability', auth, async (req, res) => {
 
         const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
         const isValid = availability.every(item =>
-            validDays.includes(item.day) && 
+            validDays.includes(item.day) &&
             Array.isArray(item.slots) &&
             item.slots.every(slot => typeof slot === 'string')
         );
@@ -200,7 +205,7 @@ router.post('/details', auth, async (req, res) => {
 
         await user.save();
 
-        res.status(200).json({ 
+        res.status(200).json({
             message: 'Details submitted successfully.',
             user: {
                 firstName: user.firstName,
@@ -354,38 +359,38 @@ router.post('/admin/availability/:id', auth, adminOnly, async (req, res) => {
 // Admin dashboard metrics
 router.get('/admin/metrics', auth, adminOnly, async (req, res) => {
     try {
-      const users = await User.find();
-  
-      const totalMentors = users.filter(u => u.role === 'user').length;
-      const teamLeads = users.filter(u => u.userRole === 'Team Lead & Peer Mentor').length;
-      const onCoop = users.filter(u => u.coopStatus === 'Yes').length;
-      const incomplete = users.filter(u => {
-        return !(u.firstName && u.lastName && u.email && u.userRole && u.major && u.coopStatus &&
-          Array.isArray(u.availability) && u.availability.reduce((count, day) => count + day.slots.length, 0) >= 6);
-      }).length;
-  
-      // Count majors
-      const majorsMap = {};
-      for (const u of users) {
-        if (u.major) {
-          majorsMap[u.major] = (majorsMap[u.major] || 0) + 1;
+        const users = await User.find();
+
+        const totalMentors = users.filter(u => u.role === 'user').length;
+        const teamLeads = users.filter(u => u.userRole === 'Team Lead & Peer Mentor').length;
+        const onCoop = users.filter(u => u.coopStatus === 'Yes').length;
+        const incomplete = users.filter(u => {
+            return !(u.firstName && u.lastName && u.email && u.userRole && u.major && u.coopStatus &&
+                Array.isArray(u.availability) && u.availability.reduce((count, day) => count + day.slots.length, 0) >= 6);
+        }).length;
+
+        // Count majors
+        const majorsMap = {};
+        for (const u of users) {
+            if (u.major) {
+                majorsMap[u.major] = (majorsMap[u.major] || 0) + 1;
+            }
         }
-      }
-  
-      res.json({
-        totalMentors,
-        teamLeads,
-        onCoop,
-        incompleteProfiles: incomplete,
-        majorsDistribution: majorsMap
-      });
+
+        res.json({
+            totalMentors,
+            teamLeads,
+            onCoop,
+            incompleteProfiles: incomplete,
+            majorsDistribution: majorsMap
+        });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Failed to fetch metrics' });
+        console.error(err);
+        res.status(500).json({ error: 'Failed to fetch metrics' });
     }
-  });
-  
-  
+});
+
+
 
 // Export the router to be used in server.js
 module.exports = router;
