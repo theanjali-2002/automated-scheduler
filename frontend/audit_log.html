@@ -29,6 +29,14 @@
                 <tbody id="logTableBody"></tbody>
             </table>
         </div>
+        <div class="flex justify-between items-center mt-6" id="paginationControls">
+            <button id="prevPage" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">← Prev</button>
+            <span id="pageInfo" class="text-gray-700 font-medium"></span>
+            <button id="nextPage" class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">Next →</button>
+        </div>
+        <div class="mt-6 text-gray-600 text-sm">
+            <p>Note: Audit logs are retained for 180 days.</p>
+        </div>
     </div>
 
     <script>
@@ -36,26 +44,27 @@
             window.location.href = '/admin_board.html';
         });
 
-        document.addEventListener('DOMContentLoaded', async () => {
+        let currentPage = 1;
+
+        async function loadLogs(page) {
             const token = localStorage.getItem('token');
             if (!token) return window.location.href = '/index.html';
 
             try {
-                const res = await fetch('http://localhost:5000/api/audit-logs', {
+                const res = await fetch(`http://localhost:5000/api/audit-logs?page=${page}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
                 if (!res.ok) throw new Error('Failed to fetch audit logs');
-                const logs = await res.json();
+                const data = await res.json();
 
                 const tbody = document.getElementById('logTableBody');
                 tbody.innerHTML = '';
 
-                logs.forEach(log => {
+                data.logs.forEach(log => {
                     const row = document.createElement('tr');
                     row.classList.add('border-t', 'hover:bg-gray-50');
 
-                    // Format details object
                     let detailsHTML = '-';
                     if (log.details && typeof log.details === 'object') {
                         const entries = Object.entries(log.details);
@@ -65,19 +74,40 @@
                     }
 
                     row.innerHTML = `
-    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">${new Date(log.timestamp).toLocaleString()}</td>
-    <td class="px-4 py-2 whitespace-nowrap text-sm text-blue-700 font-medium">${log.actionType}</td>
-    <td class="px-4 py-2 whitespace-nowrap text-sm">${log.performedBy?.email || '-'}</td>
-    <td class="px-4 py-2 whitespace-nowrap text-sm">${log.affectedUser?.email || '-'}</td>
-    <td class="px-4 py-2 text-sm text-gray-800">${detailsHTML}</td>
-  `;
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">${new Date(log.timestamp).toLocaleString()}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm text-blue-700 font-medium">${log.actionType}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm">${log.performedBy?.email || '-'}</td>
+          <td class="px-4 py-2 whitespace-nowrap text-sm">${log.affectedUser?.email || '-'}</td>
+          <td class="px-4 py-2 text-sm text-gray-800">${detailsHTML}</td>
+        `;
                     tbody.appendChild(row);
                 });
+
+                // Update pagination info
+                document.getElementById('pageInfo').textContent = `Page ${data.currentPage} of ${data.totalPages}`;
+                document.getElementById('prevPage').disabled = data.currentPage === 1;
+                document.getElementById('nextPage').disabled = data.currentPage === data.totalPages;
 
             } catch (err) {
                 alert('Error loading audit logs');
                 console.error(err);
             }
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                loadLogs(currentPage);
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            currentPage++;
+            loadLogs(currentPage);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLogs(currentPage);
         });
     </script>
 </body>
