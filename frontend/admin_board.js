@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewedUserId = urlParams.get('userId');
     const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/index.html';
@@ -8,10 +10,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     const API_URL = 'http://localhost:5000/api/users';
 
     try {
-        const response = await fetch(`${API_URL}/profile`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+        const endpoint = viewedUserId
+            ? `${API_URL}/admin/profile/${viewedUserId}`
+            : `${API_URL}/profile`;
+
+        const response = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         const adminData = await safeJsonResponse(response);
@@ -21,6 +25,32 @@ document.addEventListener('DOMContentLoaded', async function () {
         document.getElementById('adminFirstName').value = adminData.firstName;
         document.getElementById('adminLastName').value = adminData.lastName;
         document.getElementById('adminEmail').value = adminData.email;
+
+        // Fetch current admin’s ID
+        const selfRes = await fetch(`${API_URL}/profile`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const selfData = await safeJsonResponse(selfRes);
+        const currentUserId = selfData?._id;
+
+        const isViewingAnotherAdmin = viewedUserId && viewedUserId !== currentUserId;
+
+        if (isViewingAnotherAdmin) {
+            // Hide dashboard
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('adminControls')?.classList.add('hidden');
+
+            // Show notice
+            const noticeDiv = document.createElement('div');
+            noticeDiv.className = 'bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded';
+            noticeDiv.innerHTML = `
+        <p class="font-semibold">Note:</p>
+        <p>You are viewing another admin's profile.</p>
+        <a href="/admin_board.html" class="mt-2 inline-block text-blue-600 underline hover:text-blue-800">Click here to return to your own profile</a>
+    `;
+            const container = document.querySelector('.max-w-6xl');
+            container.insertBefore(noticeDiv, container.firstChild);
+        }
 
         // Load mentor list 
         await loadMentorList(API_URL, token);
@@ -233,7 +263,7 @@ async function loadMentorList(API_URL, token) {
                     </span>
                 </td>
                 <td class="px-4 py-3">
-                    <a href="/user_board.html?userId=${user._id}" class="text-red-600 hover:underline">View</a>
+                    <a href="${user.role === 'admin' ? `/admin_board.html?userId=${user._id}` : `/user_board.html?userId=${user._id}`}" class="text-red-600 hover:underline">View</a>
                 </td>
             `;
             tbody.appendChild(tr);
