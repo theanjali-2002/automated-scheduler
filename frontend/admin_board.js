@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', async function () {
     const API_URL = window.location.hostname.includes('localhost')
         ? 'http://localhost:5000/api/users'
         : 'https://automated-scheduler.onrender.com/api/users';
+    const SCHEDULE_API_URL = window.location.hostname.includes('localhost')
+        ? 'http://localhost:5000/api/schedule'
+        : 'https://automated-scheduler.onrender.com/api/schedule';
+
 
     try {
         const endpoint = viewedUserId
@@ -112,11 +116,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return;
                 }
                 try {
-                    const res = await fetch('http://localhost:5000/api/schedule/generate', {
+                    const res = await fetch(`${SCHEDULE_API_URL}/generate`, {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
+                        headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!res.ok) {
                         const errorData = await res.json();
@@ -153,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (downloadBtn) {
             downloadBtn.addEventListener('click', async () => {
                 try {
-                    const res = await fetch('http://localhost:5000/api/schedule/availability-export', {
+                    const res = await fetch(`${SCHEDULE_API_URL}/availability-export`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
 
