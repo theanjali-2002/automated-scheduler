@@ -460,6 +460,7 @@ router.get('/admin/metrics', auth, adminOnly, async (req, res) => {
         const teamLeads = users.filter(u => u.userRole === 'Team Lead & Peer Mentor').length;
         const onCoop = users.filter(u => u.coopStatus === 'Yes').length;
         const incomplete = users.filter(u => {
+            if (u.role !== 'user') return false; // Only count users with role 'user'
             return !(u.firstName && u.lastName && u.email && u.userRole && u.major && u.coopStatus &&
                 Array.isArray(u.availability) && u.availability.reduce((count, day) => count + day.slots.length, 0) >= 6);
         }).length;
@@ -484,8 +485,6 @@ router.get('/admin/metrics', auth, adminOnly, async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch metrics' });
     }
 });
-
-
 
 // Export the router to be used in server.js
 module.exports = router;
