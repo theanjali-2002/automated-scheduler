@@ -54,7 +54,7 @@
             try {
                 const API_URL = API_BASE_URL;
 
-                const res = await fetch(`${API_URL}/api/audit-logs?page=${page}`, {
+                const res = await fetch(`${API_URL}/audit-logs?page=${page}`, {
 
                     headers: { Authorization: `Bearer ${token}` }
                 });
