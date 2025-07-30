@@ -74,8 +74,13 @@ router.get('/admin/data', auth, adminOnly, async (req, res) => {
                         !!user.userRole &&
                         !!user.major &&
                         !!user.coopStatus &&
-                        Array.isArray(user.availability) &&
-                        user.availability.reduce((count, day) => count + day.slots.length, 0) >= 6
+                        (
+                            user.coopStatus === 'Yes' ||
+                            (
+                                Array.isArray(user.availability) &&
+                                user.availability.reduce((count, day) => count + day.slots.length, 0) >= 6
+                            )
+                        )
                     );
 
 
@@ -461,6 +466,7 @@ router.get('/admin/metrics', auth, adminOnly, async (req, res) => {
         const onCoop = users.filter(u => u.coopStatus === 'Yes').length;
         const incomplete = users.filter(u => {
             if (u.role !== 'user') return false; // Only count users with role 'user'
+            if (u.coopStatus === 'Yes') return false; // Skip users on coop
             return !(u.firstName && u.lastName && u.email && u.userRole && u.major && u.coopStatus &&
                 Array.isArray(u.availability) && u.availability.reduce((count, day) => count + day.slots.length, 0) >= 6);
         }).length;
