@@ -13,7 +13,7 @@ if (hostname.includes('localhost')) {
 const API_BASE_URL = {
   development: 'http://localhost:5000/api',
   staging: 'https://automated-scheduler-staging.onrender.com/api',
-  production: 'https://automated-scheduler.onrender.com/api'
+  production: 'https://sssc-automated-scheduler.onrender.com/api'
 }[ENV];
 
 export { API_BASE_URL };
