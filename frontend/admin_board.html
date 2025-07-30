@@ -150,6 +150,12 @@
         mentorListTab.classList.add('border-b-2', 'border-red-600', 'text-red-600');
         dashboardTab.classList.remove('border-b-2', 'border-red-600', 'text-red-600');
       });
+      document.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash;
+        if (hash === '#mentorListSection') {
+          mentorListTab.click();
+        }
+      });
     </script>
 </body>
 

@@ -11,7 +11,7 @@
   <div class="max-w-5xl mx-auto py-10 px-6">
     <h2 class="text-xl font-bold mb-2 hidden" id="pageModeLabel">Admin is editing this user profile</h2>
     <div id="adminBack" class="mb-4 hidden">
-      <a href="/admin_board.html" class="text-sm text-blue-600 hover:underline">← Back to Admin Dashboard</a>
+      <a href="/admin_board.html#mentorListSection" class="text-sm text-blue-600 hover:underline">← Back to Mentors' List</a>
     </div>    
 
     <!-- Welcome Section -->
@@ -61,13 +61,14 @@
           <select id="majorDropdown" class="mt-1 w-full border rounded px-3 py-2" onchange="handleMajorChange(this.value)">
             <option value="">-- Select Major --</option>
             <option value="Computer Science">Computer Science</option>
+            <option value="Data Science">Data Science</option>
             <option value="Biology">Biology</option>
-            <option value="Chemistry">Chemistry</option>
+            <option value="Chemistry">Chemistry / Biochemistry</option>
             <option value="Physics">Physics</option>
             <option value="Mathematics and Statistics">Mathematics and Statistics</option>
-            <option value="Environmental and Earth Science">Environmental and Earth Science</option>
+            <option value="Environmental and Earth Science">Environmental and/or Earth Science</option>
             <option value="Health Science">Health Science</option>
-            <option value="Neuroscience and Mental Health">Neuroscience and Mental Health</option>
+            <option value="Neuroscience and Mental Health">Neuroscience</option>
             <option value="Psychology">Psychology</option>
             <option value="Other">Other (enter manually below)</option>
           </select>

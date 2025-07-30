@@ -237,6 +237,10 @@ router.post('/details', auth, async (req, res) => {
         user.major = major;
         user.notes = notes || '';
         user.coopStatus = coopStatus;
+        // If user is on co-op, clear availability
+        if (coopStatus === 'Yes') {
+            user.availability = [];
+        }
         if (req.user.role === 'user') {
             user.userRole = userRole;
         }
