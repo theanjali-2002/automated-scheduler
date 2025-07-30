@@ -39,7 +39,8 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { API_BASE_URL } from './config.js';
         document.getElementById('backBtn').addEventListener('click', () => {
             window.location.href = '/admin_board.html';
         });
@@ -51,9 +52,7 @@
             if (!token) return window.location.href = '/index.html';
 
             try {
-                const API_URL = window.location.hostname.includes('localhost')
-                    ? 'http://localhost:5000'
-                    : 'https://automated-scheduler.onrender.com'; // replace with your Render domain
+                const API_URL = API_BASE_URL;
 
                 const res = await fetch(`${API_URL}/api/audit-logs?page=${page}`, {
 

@@ -1,12 +1,11 @@
+import { API_BASE_URL } from './config.js';
 // Handle both login and signup functionality
 document.addEventListener('DOMContentLoaded', function () {
     // Get the forms
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
 
-    const API_URL = window.location.hostname.includes('localhost')
-        ? 'http://localhost:5000/api/users'
-        : 'https://automated-scheduler.onrender.com/api/users';
+    const API_URL = `${API_BASE_URL}/users`;
 
     // Handle Login
     if (loginForm) {

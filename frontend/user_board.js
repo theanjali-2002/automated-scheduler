@@ -1,3 +1,4 @@
+import { API_BASE_URL } from './config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const userIdParam = urlParams.get('userId');
@@ -11,9 +12,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // API URL
-    const API_URL = window.location.hostname.includes('localhost')
-        ? 'http://localhost:5000/api/users'
-        : 'https://automated-scheduler.onrender.com/api/users';
+    const API_URL = `${API_BASE_URL}/users`;
 
     try {
         // Fetch user data
