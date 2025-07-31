@@ -78,7 +78,7 @@ router.get('/admin/data', auth, adminOnly, async (req, res) => {
                             user.coopStatus === 'Yes' ||
                             (
                                 Array.isArray(user.availability) &&
-                                user.availability.reduce((count, day) => count + day.slots.length, 0) >= 6
+                                user.availability.reduce((count, day) => count + day.slots.length, 0) >= 9
                             )
                         )
                     );
@@ -166,12 +166,12 @@ router.post('/availability', auth, async (req, res) => {
             return res.status(400).json({ error: 'Invalid availability format.' });
         }
 
-        // Enforce rule: at least 3 consecutive slots twice a week
-        const isValidSubmission = availability.filter(day => day.slots.length >= 3).length >= 2;
+        // Enforce rule: at least 3 consecutive slots thrice a week
+        const isValidSubmission = availability.filter(day => day.slots.length >= 3).length >= 3;
 
         if (!isValidSubmission) {
             return res.status(400).json({
-                error: 'You must select at least 3 consecutive slots twice a week.'
+                error: 'You must select at least 3 consecutive slots thrice a week.'
             });
         }
 
@@ -472,7 +472,7 @@ router.get('/admin/metrics', auth, adminOnly, async (req, res) => {
             if (u.role !== 'user') return false; // Only count users with role 'user'
             if (u.coopStatus === 'Yes') return false; // Skip users on coop
             return !(u.firstName && u.lastName && u.email && u.userRole && u.major && u.coopStatus &&
-                Array.isArray(u.availability) && u.availability.reduce((count, day) => count + day.slots.length, 0) >= 6);
+                Array.isArray(u.availability) && u.availability.reduce((count, day) => count + day.slots.length, 0) >= 9);
         }).length;
 
         // Count majors

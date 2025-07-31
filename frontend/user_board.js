@@ -68,13 +68,21 @@ document.addEventListener('DOMContentLoaded', async function () {
             document.getElementById('email')?.removeAttribute('disabled');
             document.querySelector('input[type="text"][value="user"]')?.removeAttribute('disabled');
             document.querySelectorAll('input[disabled], textarea[disabled]').forEach(el => el.removeAttribute('disabled'));
-            ['firstName', 'lastName', 'email', 'userrole'].forEach(id => {
+            ['firstName', 'lastName', 'email'].forEach(id => {
                 const input = document.getElementById(id);
                 if (input) {
+                    input.removeAttribute('disabled');
                     input.classList.remove('bg-gray-100');
                     input.classList.add('bg-white');
                 }
             });
+            // Explicitly keep userrole disabled
+            const userroleInput = document.getElementById('userrole');
+            if (userroleInput) {
+                userroleInput.setAttribute('disabled', 'true');
+                userroleInput.classList.add('bg-gray-100');
+                userroleInput.classList.remove('bg-white');
+            }
         }
 
         // Set major if exists
