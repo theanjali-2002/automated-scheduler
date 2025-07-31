@@ -25,7 +25,14 @@ router.post('/signup', async (req, res) => {
     }
 
     try {
-        const existingUser = await User.findOne({ email });
+        const normalizedEmail = email.trim().toLowerCase();
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(normalizedEmail)) {
+            return res.status(400).json({ error: 'Invalid email format.' });
+        }
+
+        const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
             return res.status(400).json({ error: 'User already exists.' });
         }
@@ -35,7 +42,7 @@ router.post('/signup', async (req, res) => {
         const newUser = new User({
             firstName,
             lastName,
-            email,
+            email: normalizedEmail,
             password: hashedPassword,
             role: finalRole
         });
@@ -114,7 +121,8 @@ router.get('/admin/data', auth, adminOnly, async (req, res) => {
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = await User.findOne({ email });
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         // Check password
