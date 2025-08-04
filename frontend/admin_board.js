@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './config.js'; 
+import { API_BASE_URL } from './config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const viewedUserId = urlParams.get('userId');
@@ -181,6 +181,49 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
             });
         }
+
+        const exportMentorBtn = document.getElementById('exportMentorBtn');
+        if (exportMentorBtn) {
+            exportMentorBtn.addEventListener('click', async () => {
+                if (!confirm("Are you sure you want to export mentor details?")) {
+                    return;
+                }
+                try {
+                    const res = await fetch(`${SCHEDULE_API_URL}/mentors-export`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(err?.error || 'Failed to export mentor details');
+                    }
+
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+
+                    const disposition = res.headers.get('Content-Disposition');
+                    let fileName = 'mentors_export.xlsx';
+                    if (disposition && disposition.includes('filename=')) {
+                        fileName = disposition
+                            .split('filename=')[1]
+                            .replace(/["']/g, '')
+                            .trim();
+                    }
+
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    showSuccess('Mentor details exported successfully!');
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+        }
+
 
     } catch (error) {
         console.error(error);
