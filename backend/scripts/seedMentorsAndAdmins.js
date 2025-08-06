@@ -29,10 +29,10 @@
  * 4. Verify that mentors and admins have been added by checking the `users` collection in MongoDB.
  */
 
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const User = require('./models/User');
+const User = require('../models/User');
 
 const majorOptions = [
     'Computer Science',

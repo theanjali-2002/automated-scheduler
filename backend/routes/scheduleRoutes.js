@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { adminOnly } = require('../middleware/auth');
-const generateSchedule = require('../generateScheduleScript');
+const generateSchedule = require('../scripts/generateScheduleScript');
 const path = require('path');
 const moment = require('moment');
 const ExcelJS = require('exceljs');

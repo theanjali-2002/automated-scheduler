@@ -11,6 +11,7 @@ dotenv.config();
 
 const userRoutes = require('./routes/userRoutes'); 
 const scheduleRoutes = require('./routes/scheduleRoutes'); // Added schedule routes
+const auditRoutes = require('./routes/auditRoutes');
 
 // Middleware
 app.use(express.json());
@@ -19,25 +20,28 @@ app.use(cors());
 // Serve static files from the frontend directory
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// Use the user routes
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/schedule', scheduleRoutes); // Register schedule routes
-
-// Use the audit routes
-app.use('/api', require('./routes/auditRoutes'));
+// API routes
+app.use('/api/users', userRoutes);
+app.use('/api/schedule', scheduleRoutes);
+app.use('/api', auditRoutes);
 
 // Route to serve index.html
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../frontend/pages/index.html'));
+// });
+
+// Block SPA fallback for scripts or node_modules requests
+app.use((req, res, next) => {
+    if (req.path.startsWith('/scripts') || req.path.startsWith('/node_modules')) {
+        return res.status(404).end();
+    }
+    next();
 });
 
 // Catch-all route to handle client-side routing
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
-
-// MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI; // Fetch from .env
 
 mongoose
     .connect(process.env.MONGO_URI, {

@@ -18,9 +18,9 @@
  */
 
 
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
-const User = require('./models/User'); // Adjust path based on your project structure
+const User = require('../models/User'); // Adjust path based on your project structure
 
 async function deleteAllUsers() {
     try {
