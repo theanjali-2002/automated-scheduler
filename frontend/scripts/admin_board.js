@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './config.js';
+import { API_BASE_URL } from '/scripts/config.js';
 document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const viewedUserId = urlParams.get('userId');
@@ -282,7 +282,10 @@ async function loadMentorList(API_URL, token) {
         users.sort((a, b) => {
             if (a.role === 'admin' && b.role !== 'admin') return -1;
             if (a.role !== 'admin' && b.role === 'admin') return 1;
-            return 0;
+            //return 0;
+            const nameA = `${a.firstName} ${a.lastName}`.toLowerCase();
+            const nameB = `${b.firstName} ${b.lastName}`.toLowerCase();
+            return nameA.localeCompare(nameB);
         });
 
         const tbody = document.querySelector('#mentorListSection tbody');

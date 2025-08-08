@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './config.js';
+import { API_BASE_URL } from '/scripts/config.js';
 // Handle both login and signup functionality
 document.addEventListener('DOMContentLoaded', function () {
     // Get the forms

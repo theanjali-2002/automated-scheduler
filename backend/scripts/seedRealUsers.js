@@ -22,12 +22,11 @@
  * WARNING: This will delete all existing users in the database.
  */
 
-
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' });
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const xlsx = require('xlsx');
-const User = require('./models/User'); 
+const User = require('../models/User'); 
 
 async function seedFromExcel() {
   try {
