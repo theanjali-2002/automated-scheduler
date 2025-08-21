@@ -122,6 +122,10 @@
     <div class="bg-white shadow-md rounded-lg p-6" id="availabilitySection">
       <h2 class="text-xl font-semibold mb-4">Select Your Weekly Availability</h2>
       <p id="coopNote" class="text-sm text-gray-500 italic mb-4"></p>
+      <p class="text-xs text-gray-500 mb-2">
+        Friday availability is currently disabled for Fall 2025.<br>
+        Please select 3 consecutive time slots, three times per week (Monday to Thursday).
+      </p>
 
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-center">
@@ -132,7 +136,6 @@
               <th class="border px-2 py-1 bg-gray-200">Tuesday</th>
               <th class="border px-2 py-1 bg-gray-200">Wednesday</th>
               <th class="border px-2 py-1 bg-gray-200">Thursday</th>
-              <th class="border px-2 py-1 bg-gray-200">Friday</th>
             </tr>
           </thead>
 
@@ -169,7 +172,7 @@
 
 
   <script>
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const startHour = 10;
     const endHour = 16;
     const container = document.getElementById('availabilityBody');

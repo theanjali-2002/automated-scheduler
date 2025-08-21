@@ -152,7 +152,7 @@ router.get('/availability-export', adminOnly, async (req, res) => {
             return `FF${r}${g}${b}`.toUpperCase();
         }
 
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
 
         for (const day of days) {
             // Create a new sheet for each day
