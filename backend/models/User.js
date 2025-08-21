@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     availability: [
         {
-            day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], required: true },
+            day: { type: String, enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday'], required: true },
             slots: [{ type: String, required: true }] // Each slot will be a string like '10:00-10:30'
         }
     ],

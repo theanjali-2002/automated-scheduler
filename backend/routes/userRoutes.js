@@ -26,7 +26,7 @@ router.post('/signup', async (req, res) => {
 
     try {
         const normalizedEmail = email.trim().toLowerCase();
-        
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(normalizedEmail)) {
             return res.status(400).json({ error: 'Invalid email format.' });
@@ -163,7 +163,7 @@ router.post('/availability', auth, async (req, res) => {
             return res.status(400).json({ error: 'Availability data is required and must be an array.' });
         }
 
-        const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+        const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
         const isValid = availability.every(item =>
             validDays.includes(item.day) &&
             Array.isArray(item.slots) &&
@@ -429,7 +429,7 @@ router.post('/admin/availability/:id', auth, adminOnly, async (req, res) => {
         return res.status(400).json({ error: 'Availability must be a non-empty array.' });
     }
 
-    const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    const validDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday'];
     const isValid = availability.every(item =>
         validDays.includes(item.day) &&
         Array.isArray(item.slots) &&
